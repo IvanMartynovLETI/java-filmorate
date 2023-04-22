@@ -9,10 +9,10 @@ import java.util.Map;
 
 public class Validator {
     private int peopleId = 0;
-    private final String PEOPLE_WARNING = "User doesn't exist.";
+    private final String peopleWarning = "User doesn't exist.";
     private int movieId = 0;
 
-    private final String MOVIE_WARNING = "Film doesn't exist.";
+    private final String movieWarning = "Film doesn't exist.";
 
     public User validatePeople(User user, Map<Integer, User> users, boolean isCreationMethod) {
         if (user.getName() == null) {
@@ -22,7 +22,7 @@ public class Validator {
             user.setId(++peopleId);
         } else {
             if (!users.containsKey(user.getId())) {
-                throw new ValidationException(PEOPLE_WARNING);
+                throw new ValidationException(peopleWarning);
             }
         }
 
@@ -34,7 +34,7 @@ public class Validator {
             film.setId(++movieId);
         } else {
             if (!films.containsKey(film.getId())) {
-                throw new ValidationException(MOVIE_WARNING);
+                throw new ValidationException(movieWarning);
             }
         }
 
@@ -42,7 +42,7 @@ public class Validator {
     }
 
     public HttpStatus getStatus(String msg) {
-        if (msg.equals(PEOPLE_WARNING) || msg.equals(MOVIE_WARNING)) {
+        if (msg.equals(peopleWarning) || msg.equals(movieWarning)) {
             return HttpStatus.NOT_FOUND;
         } else {
             return HttpStatus.OK;

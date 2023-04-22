@@ -21,8 +21,8 @@ public class ValidatorTest {
     private static Validator validator;
     private static User user;
     private static Film film;
-    private final String PEOPLE_WARNING = "User doesn't exist.";
-    private final String MOVIE_WARNING = "Film doesn't exist.";
+    private final String peopleWarning = "User doesn't exist.";
+    private final String movieWarning = "Film doesn't exist.";
 
     @BeforeEach
     public void beforeEach() {
@@ -52,7 +52,7 @@ public class ValidatorTest {
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> validator.validatePeople(user, users,false));
 
-        assertEquals(PEOPLE_WARNING, exception.getMessage());
+        assertEquals(peopleWarning, exception.getMessage());
     }
 
     @Test
@@ -62,20 +62,20 @@ public class ValidatorTest {
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> validator.validateMovie(film, films,false));
 
-        assertEquals(MOVIE_WARNING, exception.getMessage());
+        assertEquals(movieWarning, exception.getMessage());
     }
 
     @Test
-    public void shouldReturnHttpStatusNotFoundWhenAcceptingPEOPLE_WARNING() {
-        assertEquals(HttpStatus.NOT_FOUND, validator.getStatus(PEOPLE_WARNING),
-                "Incorrect response code in shouldReturnHttpStatusNotFoundWhenAcceptingPEOPLE_WARNING " +
+    public void shouldReturnHttpStatusNotFoundWhenAcceptingpeopleWarning() {
+        assertEquals(HttpStatus.NOT_FOUND, validator.getStatus(peopleWarning),
+                "Incorrect response code in shouldReturnHttpStatusNotFoundWhenAcceptingpeopleWarning " +
                         "test method");
     }
 
     @Test
-    public void shouldReturnHttpStatusNotFoundWhenAcceptingMOVIE_WARNING() {
-        assertEquals(HttpStatus.NOT_FOUND, validator.getStatus(MOVIE_WARNING),
-                "Incorrect response code in shouldReturnHttpStatusNotFoundWhenAcceptingMOVIE_WARNING " +
+    public void shouldReturnHttpStatusNotFoundWhenAcceptingmovieWarning() {
+        assertEquals(HttpStatus.NOT_FOUND, validator.getStatus(movieWarning),
+                "Incorrect response code in shouldReturnHttpStatusNotFoundWhenAcceptingmovieWarning " +
                         "test method");
     }
 
