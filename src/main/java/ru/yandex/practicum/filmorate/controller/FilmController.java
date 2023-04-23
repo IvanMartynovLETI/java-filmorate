@@ -1,10 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
@@ -20,38 +17,25 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        log.info("Request for film with id: {} creation obtained.", film.getId());
-        Film checkedMovie = film;
-        try {
-            checkedMovie = validator.validateMovie(film, films, true);
-            films.put(checkedMovie.getId(), checkedMovie);
-        } catch (ValidationException e) {
-            log.warn(e.getMessage());
-        }
+        log.info("Request for film with name '{}' creation obtained.", film.getName());
+        Film checkedMovie = validator.validateMovie(film, films, true);
+        films.put(checkedMovie.getId(), checkedMovie);
 
         return checkedMovie;
     }
 
     @PutMapping
-    public ResponseEntity<Film> put(@RequestBody Film film) {
-        log.info("Request for film with id: {} putting obtained.", film.getId());
-        HttpStatus status = HttpStatus.OK;
-        Film checkedMovie = film;
-        try {
-            checkedMovie = validator.validateMovie(film, films, false);
+    public Film put(@RequestBody Film film) {
+        log.info("Request for film with id '{}'  putting obtained.", film.getId());
+        Film checkedMovie = validator.validateMovie(film, films, false);
+        films.put(checkedMovie.getId(), checkedMovie);
 
-            films.put(checkedMovie.getId(), checkedMovie);
-        } catch (ValidationException e) {
-            log.warn(e.getMessage());
-            status = validator.getStatus(e.getMessage());
-        }
-
-        return ResponseEntity.status(status).body(checkedMovie);
+        return checkedMovie;
     }
 
     @GetMapping
     public Collection<Film> findAll() {
-        log.info("Request for getting film's collection obtained.");
+        log.info("Request for getting film's collection obtained. Now {} films present.", films.size());
         return films.values();
     }
 }

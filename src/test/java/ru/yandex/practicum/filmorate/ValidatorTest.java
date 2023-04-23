@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.springframework.http.HttpStatus;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -21,8 +20,6 @@ public class ValidatorTest {
     private static Validator validator;
     private static User user;
     private static Film film;
-    private final String peopleWarning = "User doesn't exist.";
-    private final String movieWarning = "Film doesn't exist.";
 
     @BeforeEach
     public void beforeEach() {
@@ -52,6 +49,8 @@ public class ValidatorTest {
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> validator.validatePeople(user, users,false));
 
+        String peopleWarning = "User doesn't exist.";
+
         assertEquals(peopleWarning, exception.getMessage());
     }
 
@@ -62,27 +61,8 @@ public class ValidatorTest {
         final ValidationException exception = assertThrows(ValidationException.class,
                 () -> validator.validateMovie(film, films,false));
 
+        String movieWarning = "Film doesn't exist.";
+
         assertEquals(movieWarning, exception.getMessage());
-    }
-
-    @Test
-    public void shouldReturnHttpStatusNotFoundWhenAcceptingpeopleWarning() {
-        assertEquals(HttpStatus.NOT_FOUND, validator.getStatus(peopleWarning),
-                "Incorrect response code in shouldReturnHttpStatusNotFoundWhenAcceptingpeopleWarning " +
-                        "test method");
-    }
-
-    @Test
-    public void shouldReturnHttpStatusNotFoundWhenAcceptingmovieWarning() {
-        assertEquals(HttpStatus.NOT_FOUND, validator.getStatus(movieWarning),
-                "Incorrect response code in shouldReturnHttpStatusNotFoundWhenAcceptingmovieWarning " +
-                        "test method");
-    }
-
-    @Test
-    public void shouldReturnHttpStatusOKWhenAcceptingSomethingElseAnother() {
-        assertEquals(HttpStatus.OK, validator.getStatus("Something else another"),
-                "Incorrect response code in shouldReturnHttpStatusOKWhenAcceptingSomethingElseAnother " +
-                        "test method");
     }
 }
