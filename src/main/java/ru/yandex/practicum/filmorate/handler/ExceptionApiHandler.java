@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 @RestControllerAdvice
 public class ExceptionApiHandler {
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ErrorMessage> ValidationException(ValidationException e) {
+    public ResponseEntity<ErrorMessage> validationException(ValidationException e) {
         log.warn(e.toString());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
     }
