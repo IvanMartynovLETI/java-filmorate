@@ -52,9 +52,10 @@ public class UserService {
         Set<Long> friendsIdsForUser1 = new HashSet<>(user1.getFriendsIds());
         friendsIdsForUser1.retainAll(user2.getFriendsIds());
 
-        commonFriends = friendsIdsForUser1.stream().filter(p -> ((InMemoryUserStorage) userStorage).
-                        getUsers().containsKey(p)).map(p -> ((InMemoryUserStorage) userStorage).getUsers().get(p)).
-                collect(Collectors.toList());
+        commonFriends = friendsIdsForUser1.stream()
+                .filter(p -> ((InMemoryUserStorage) userStorage).getUsers().containsKey(p))
+                .map(p -> ((InMemoryUserStorage) userStorage).getUsers().get(p))
+                .collect(Collectors.toList());
 
         return Optional.of(commonFriends);
     }
@@ -62,7 +63,8 @@ public class UserService {
     public Collection<User> getFriendsOfUser(User user) {
         log.info("Obtaining list of friends for user with id: {}.", user.getId());
 
-        return user.getFriendsIds().stream().filter(p -> ((InMemoryUserStorage) userStorage).getUsers().containsKey(p))
+        return user.getFriendsIds().stream()
+                .filter(p -> ((InMemoryUserStorage) userStorage).getUsers().containsKey(p))
                 .map(p -> ((InMemoryUserStorage) userStorage).getUsers().get(p)).collect(Collectors.toList());
     }
 }
