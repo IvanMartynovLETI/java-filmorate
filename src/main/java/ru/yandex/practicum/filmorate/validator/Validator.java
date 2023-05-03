@@ -1,38 +1,41 @@
 package ru.yandex.practicum.filmorate.validator;
 
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Map;
 
+@Component
 public class Validator {
-    private int peopleId = 0;
+    private Long peopleId = 0L;
     private int movieId = 0;
 
-    public User validatePeople(User user, Map<Integer, User> users, boolean isCreationMethod) {
-        if (user.getName() == null) {
+    public User validateUser(User user, Map<Long, User> users, boolean isCreationMethod) {
+        if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
         if (isCreationMethod) {
             user.setId(++peopleId);
         } else {
             if (!users.containsKey(user.getId())) {
-                String peopleWarning = "User doesn't exist.";
-                throw new ValidationException(peopleWarning);
+                String userWarning = "User with id: " + user.getId() + " doesn't exist.";
+                throw new UserNotFoundException(userWarning);
             }
         }
 
         return user;
     }
 
-    public Film validateMovie(Film film, Map<Integer, Film> films, boolean isCreationMethod) {
+    public Film validateFilm(Film film, Map<Integer, Film> films, boolean isCreationMethod) {
         if (isCreationMethod) {
             film.setId(++movieId);
         } else {
             if (!films.containsKey(film.getId())) {
-                String movieWarning = "Film doesn't exist.";
-                throw new ValidationException(movieWarning);
+                String filmWarning = "Film with id: " + film.getId() + " doesn't exist.";
+                throw new FilmNotFoundException(filmWarning);
             }
         }
 

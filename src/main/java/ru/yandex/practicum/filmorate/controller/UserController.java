@@ -1,43 +1,102 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.validator.Validator;
+import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@AllArgsConstructor
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private final Validator validator = new Validator();
+    private final UserStorage userStorage;
+    private final UserService userService;
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        log.info("Request for user with login '{}' creation obtained.", user.getLogin());
-        User checkedPeople = validator.validatePeople(user, users, true);
-        users.put(checkedPeople.getId(), checkedPeople);
 
-        return checkedPeople;
+        return userStorage.addUser(user);
     }
 
     @PutMapping
     public User put(@RequestBody User user) {
-        log.info("Request for user with id '{}' putting obtained.", user.getId());
-        User checkedUser = validator.validatePeople(user, users, false);
-        users.put(checkedUser.getId(), checkedUser);
 
-        return user;
+        return userStorage.modifyUser(user);
     }
 
     @GetMapping
     public Collection<User> findAll() {
-        log.info("Request for getting user's collection obtained. Now {} users present.", users.size());
-        return users.values();
+
+        return ((InMemoryUserStorage) userStorage).findAllUsers();
+    }
+
+    @GetMapping("/{id}")
+    @ResponseBody
+    public User getUserById(@PathVariable(required = false) final Long id) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+
+        return userStorage.getUserById(id);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    @ResponseBody
+    public User addUserToFriend(@PathVariable(required = false) final Long id, @PathVariable(required = false) final Long friendId) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+        if (friendId == null) {
+            throw new IncorrectParameterException("'friendId' parameter equals to null.");
+        }
+
+        return userService.addUserToFriends(userStorage.getUserById(id), userStorage.getUserById(friendId));
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    @ResponseBody
+    public User deleteUserFromFriends(@PathVariable(required = false) final Long id, @PathVariable(required = false) final Long friendId) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+        if (friendId == null) {
+            throw new IncorrectParameterException("'friendId' parameter equals to null.");
+        }
+
+        return userService.deleteUserFromFriend(userStorage.getUserById(id), userStorage.getUserById(friendId));
+    }
+
+    @GetMapping("/{id}/friends")
+    @ResponseBody
+    public Collection<User> getFriendsOfUser(@PathVariable(required = false) final Long id) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+
+        return userService.getFriendsOfUser(userStorage.getUserById(id));
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    @ResponseBody
+    public Optional<List<User>> getCommonFriends(@PathVariable(required = false) final Long id,
+                                                 @PathVariable(required = false) final Long otherId) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+        if (otherId == null) {
+            throw new IncorrectParameterException("'otherId' parameter equals to null.");
+        }
+
+        return userService.getCommonFriends(userStorage.getUserById(id), userStorage.getUserById(otherId));
     }
 }

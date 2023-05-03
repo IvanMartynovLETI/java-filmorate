@@ -2,9 +2,11 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validator.Validator;
@@ -15,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ValidatorTest {
-    private static Map<Integer, User> users;
+    private static Map<Long, User> users;
     private static Map<Integer, Film> films;
     private static Validator validator;
     private static User user;
@@ -28,7 +30,7 @@ public class ValidatorTest {
         validator = new Validator();
 
         user = new User();
-        user.setId(1);
+        user.setId(1L);
         user.setEmail("practicum@yandex.ru");
         user.setLogin("student1");
         user.setName("Ivan");
@@ -43,26 +45,26 @@ public class ValidatorTest {
     }
 
     @Test
-    public void shouldThrowValidationExceptionWhileAttemptingToUpdateUserWhichDoesNotPresentInMap() {
-        user.setId(12);
+    public void shouldThrowUserNotFoundExceptionWhileAttemptingToUpdateUserWhichDoesNotPresentInMap() {
+        user.setId(12L);
 
-        final ValidationException exception = assertThrows(ValidationException.class,
-                () -> validator.validatePeople(user, users,false));
+        final UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> validator.validateUser(user, users, false));
 
-        String peopleWarning = "User doesn't exist.";
+        String userWarning = "User with id: 12 doesn't exist.";
 
-        assertEquals(peopleWarning, exception.getMessage());
+        assertEquals(userWarning, exception.getMessage());
     }
 
     @Test
-    public void shouldReturnValidationExceptionWhileAttemptingToUpdateFilmWhichDoesNotPresentInMap() {
+    public void shouldReturnFilmNotFoundExceptionWhileAttemptingToUpdateFilmWhichDoesNotPresentInMap() {
         film.setId(18);
 
-        final ValidationException exception = assertThrows(ValidationException.class,
-                () -> validator.validateMovie(film, films,false));
+        final FilmNotFoundException exception = assertThrows(FilmNotFoundException.class,
+                () -> validator.validateFilm(film, films, false));
 
-        String movieWarning = "Film doesn't exist.";
+        String filmWarning = "Film with id: 18 doesn't exist.";
 
-        assertEquals(movieWarning, exception.getMessage());
+        assertEquals(filmWarning, exception.getMessage());
     }
 }
