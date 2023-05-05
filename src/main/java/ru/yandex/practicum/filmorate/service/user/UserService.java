@@ -1,24 +1,53 @@
 package ru.yandex.practicum.filmorate.service.user;
 
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import ru.yandex.practicum.filmorate.validator.Validator;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Data
+@RequiredArgsConstructor
 public class UserService {
-    private Validator validator;
     private final UserStorage userStorage;
 
-    public User addUserToFriends(User user, User userToBeAddedAsFriend) {
+    public User addUser(User user) {
+        return userStorage.addUser(user);
+    }
+
+    public User modifyUser(User user) {
+        return userStorage.modifyUser(user);
+    }
+
+    public Collection<User> findAll() {
+        return ((InMemoryUserStorage) userStorage).findAllUsers();
+    }
+
+    public User getUserById(Long id) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+
+        return userStorage.getUserById(id);
+    }
+
+    public User addUserToFriends(Long id, Long friendId) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+        if (friendId == null) {
+            throw new IncorrectParameterException("'friendId' parameter equals to null.");
+        }
+
+        User user = userStorage.getUserById(id);
+        User userToBeAddedAsFriend = userStorage.getUserById(friendId);
+
         log.info("User with id: {} wants to add user with id: {} as friend.", user.getId(),
                 userToBeAddedAsFriend.getId());
 
@@ -30,7 +59,17 @@ public class UserService {
         return user;
     }
 
-    public User deleteUserFromFriend(User user, User userToBeDeletedFromFriends) {
+    public User deleteUserFromFriend(Long id, Long friendId) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+        if (friendId == null) {
+            throw new IncorrectParameterException("'friendId' parameter equals to null.");
+        }
+
+        User user = userStorage.getUserById(id);
+        User userToBeDeletedFromFriends = userStorage.getUserById(friendId);
+
         log.info("User with id: {} wants to delete user with id: {} from friends.", user.getId(),
                 userToBeDeletedFromFriends.getId());
 
@@ -42,15 +81,25 @@ public class UserService {
         return user;
     }
 
-    public Optional<List<User>> getCommonFriends(User user1, User user2) {
-        log.info("Obtaining common friends for user with id: {} and user with id: {}", user1.getId(), user2.getId());
+    public Optional<List<User>> getCommonFriends(Long id, Long otherId) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+        if (otherId == null) {
+            throw new IncorrectParameterException("'otherId' parameter equals to null.");
+        }
+
+        User user = userStorage.getUserById(id);
+        User otherUser = userStorage.getUserById(otherId);
+
+        log.info("Obtaining common friends for user with id: {} and user with id: {}", user.getId(), otherUser.getId());
         List<User> commonFriends = new ArrayList<>();
-        if (user1.getFriendsIds() == null || user2.getFriendsIds() == null) {
+        if (user.getFriendsIds() == null || otherUser.getFriendsIds() == null) {
             return Optional.of(commonFriends);
         }
 
-        Set<Long> friendsIdsForUser1 = new HashSet<>(user1.getFriendsIds());
-        friendsIdsForUser1.retainAll(user2.getFriendsIds());
+        Set<Long> friendsIdsForUser1 = new HashSet<>(user.getFriendsIds());
+        friendsIdsForUser1.retainAll(otherUser.getFriendsIds());
 
         commonFriends = friendsIdsForUser1.stream()
                 .filter(p -> ((InMemoryUserStorage) userStorage).getUsers().containsKey(p))
@@ -60,11 +109,18 @@ public class UserService {
         return Optional.of(commonFriends);
     }
 
-    public Collection<User> getFriendsOfUser(User user) {
+    public Collection<User> getFriendsOfUser(Long id) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+
+        User user = userStorage.getUserById(id);
+
         log.info("Obtaining list of friends for user with id: {}.", user.getId());
 
         return user.getFriendsIds().stream()
                 .filter(p -> ((InMemoryUserStorage) userStorage).getUsers().containsKey(p))
-                .map(p -> ((InMemoryUserStorage) userStorage).getUsers().get(p)).collect(Collectors.toList());
+                .map(p -> ((InMemoryUserStorage) userStorage).getUsers().get(p))
+                .collect(Collectors.toList());
     }
 }

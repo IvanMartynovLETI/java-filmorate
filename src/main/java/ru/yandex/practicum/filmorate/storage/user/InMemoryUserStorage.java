@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
@@ -12,8 +13,10 @@ import java.util.Map;
 
 @Slf4j
 @Component
-@Data
+@RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
+
+    @Getter
     private final Map<Long, User> users;
     private final Validator validator;
 
