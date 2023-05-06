@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -16,7 +15,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
 
-    @Getter
     private final Map<Long, User> users;
     private final Validator validator;
 
@@ -57,6 +55,7 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(id);
     }
 
+    @Override
     public Collection<User> findAllUsers() {
         log.info("Request for getting user's collection obtained. Now {} users present.", users.size());
 

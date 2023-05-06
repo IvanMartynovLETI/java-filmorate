@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
@@ -31,7 +30,7 @@ public class FilmService {
     }
 
     public Collection<Film> findAll() {
-        return ((InMemoryFilmStorage) filmStorage).findAllMovies();
+        return filmStorage.findAllMovies();
     }
 
     public Film getFilmById(int id) {
@@ -82,8 +81,9 @@ public class FilmService {
         if (count < 0) {
             throw new IncorrectParameterException("'count' parameter equals to null.");
         }
-        return ((InMemoryFilmStorage) filmStorage).getFilms().values().stream()
-                .sorted(this::compare).limit(count).collect(Collectors.toList());
+        return filmStorage.findAllMovies().stream()
+                .sorted(this::compare).limit(count)
+                .collect(Collectors.toList());
     }
 
     private int compare(Film f0, Film f1) {

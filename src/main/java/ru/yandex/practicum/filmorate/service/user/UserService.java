@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +26,7 @@ public class UserService {
     }
 
     public Collection<User> findAll() {
-        return ((InMemoryUserStorage) userStorage).findAllUsers();
+        return userStorage.findAllUsers();
     }
 
     public User getUserById(Long id) {
@@ -101,9 +101,12 @@ public class UserService {
         Set<Long> friendsIdsForUser1 = new HashSet<>(user.getFriendsIds());
         friendsIdsForUser1.retainAll(otherUser.getFriendsIds());
 
+        Map<Long, User> users = userStorage.findAllUsers().stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+
         commonFriends = friendsIdsForUser1.stream()
-                .filter(p -> ((InMemoryUserStorage) userStorage).getUsers().containsKey(p))
-                .map(p -> ((InMemoryUserStorage) userStorage).getUsers().get(p))
+                .filter(users::containsKey)
+                .map(users::get)
                 .collect(Collectors.toList());
 
         return Optional.of(commonFriends);
@@ -118,9 +121,12 @@ public class UserService {
 
         log.info("Obtaining list of friends for user with id: {}.", user.getId());
 
+        Map<Long, User> users = userStorage.findAllUsers().stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+
         return user.getFriendsIds().stream()
-                .filter(p -> ((InMemoryUserStorage) userStorage).getUsers().containsKey(p))
-                .map(p -> ((InMemoryUserStorage) userStorage).getUsers().get(p))
+                .filter(users::containsKey)
+                .map(users::get)
                 .collect(Collectors.toList());
     }
 }

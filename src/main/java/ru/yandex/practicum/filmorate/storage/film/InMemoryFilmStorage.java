@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
-    @Getter
+
     private final Map<Integer, Film> films;
     private final Validator validator;
 
@@ -56,6 +55,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(id);
     }
 
+    @Override
     public Collection<Film> findAllMovies() {
         log.info("Request for getting film's collection obtained. Now {} films present.", films.size());
         return films.values();
