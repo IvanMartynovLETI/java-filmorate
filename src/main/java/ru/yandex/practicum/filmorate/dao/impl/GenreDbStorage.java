@@ -27,7 +27,6 @@ public class GenreDbStorage implements GenreStorage {
         if(id <= 0) {
             throw new IncorrectParameterException("id of genre is equal to or less than zero.");
         }
-
         String sqlQuery = "SELECT * FROM genre WHERE genre_id = ?";
         SqlRowSet genreRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
         if(!genreRow.next()) {
@@ -37,7 +36,6 @@ public class GenreDbStorage implements GenreStorage {
             genre.setId(genreRow.getInt("genre_id"));
             genre.setName(genreRow.getString("genre_name"));
         }
-
         return genre;
     }
 
@@ -45,7 +43,6 @@ public class GenreDbStorage implements GenreStorage {
     public Collection<Genre> findAllGenres() {
         log.info("Request to database for getting genre's collection obtained. Now {} mpa present.",
                 jdbcTemplate.queryForRowSet("SELECT COUNT(genre_id) from genre"));
-
         String sqlQuery = "SELECT * FROM genre";
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilledGenre(rs.getInt("genre_id"),
@@ -58,7 +55,6 @@ public class GenreDbStorage implements GenreStorage {
         if(name != null) {
             genre.setName(name);
         }
-
         return genre;
     }
 }
