@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class ValidatorTest {
     private static Map<Long, User> users;
-    private static Map<Integer, Film> films;
+    private static Map<Long, Film> films;
     private static Validator validator;
     private static User user;
     private static Film film;
@@ -37,7 +37,7 @@ public class ValidatorTest {
         user.setBirthday(LocalDate.of(1983, 1, 12));
 
         film = new Film();
-        film.setId(1);
+        film.setId(1L);
         film.setName("Harley Davidson and the Marlboro man");
         film.setDescription("Very nice movie");
         film.setReleaseDate(LocalDate.of(1991, 11, 21));
@@ -58,7 +58,7 @@ public class ValidatorTest {
 
     @Test
     public void shouldReturnFilmNotFoundExceptionWhileAttemptingToUpdateFilmWhichDoesNotPresentInMap() {
-        film.setId(18);
+        film.setId(18L);
 
         final FilmNotFoundException exception = assertThrows(FilmNotFoundException.class,
                 () -> validator.validateFilm(film, films, false));

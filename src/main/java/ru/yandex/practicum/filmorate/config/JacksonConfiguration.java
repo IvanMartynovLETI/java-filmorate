@@ -25,7 +25,7 @@ public class JacksonConfiguration {
                 @Override
                 public Duration deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
                         throws IOException {
-                    return Duration.ofMillis(jsonParser.getLongValue());
+                    return Duration.ofMinutes(jsonParser.getLongValue());
                 }
             });
 
@@ -33,7 +33,7 @@ public class JacksonConfiguration {
                 @Override
                 public void serialize(Duration duration, JsonGenerator jsonGenerator, SerializerProvider
                         serializerProvider) throws IOException {
-                    jsonGenerator.writeNumber(duration.toMillis());
+                    jsonGenerator.writeNumber(duration.toMinutes());
                 }
             });
         };

@@ -54,6 +54,7 @@ public class UserController {
         return userService.addUserToFriends(id, friendId);
     }
 
+
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseBody
     public User deleteUserFromFriends(@PathVariable(required = false) final Long id,

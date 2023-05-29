@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -15,6 +16,7 @@ import java.util.*;
 @AllArgsConstructor
 public class FilmController {
     private final FilmService filmService;
+    private final UserStorage userStorage;
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
@@ -39,7 +41,7 @@ public class FilmController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public Film getFilmById(@PathVariable final Integer id) {
+    public Film getFilmById(@PathVariable final Long id) {
         log.info("Request for getting film by id obtained.");
 
         return filmService.getFilmById(id);
@@ -47,17 +49,17 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseBody
-    public Film setLikeToFilm(@PathVariable(required = false) final Integer id,
+    public Film setLikeToFilm(@PathVariable(required = false) final Long id,
                               @PathVariable(required = false) final Long userId) {
 
         log.info("Request for setting like to film obtained.");
 
-        return filmService.addLikeToFilm(id, userId);
+        return filmService.addLikeToFilm(id, userId, userStorage);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseBody
-    public Film deleteLikeFromFilm(@PathVariable(required = false) final Integer id,
+    public Film deleteLikeFromFilm(@PathVariable(required = false) final Long id,
                                    @PathVariable(required = false) final Long userId) {
 
         log.info("Request for deleting like from film obtained.");

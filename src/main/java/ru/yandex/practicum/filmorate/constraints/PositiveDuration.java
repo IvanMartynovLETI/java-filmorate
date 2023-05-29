@@ -14,7 +14,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = PositiveDurationValidator.class)
 @Documented
 public @interface PositiveDuration {
-    String message() default "Incorrect release date.";
+    String message() default "Incorrect duration.";
 
     Class<?>[] groups() default {};
 
