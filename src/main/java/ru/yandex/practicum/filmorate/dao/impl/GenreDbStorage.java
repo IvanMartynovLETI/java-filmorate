@@ -24,11 +24,13 @@ public class GenreDbStorage implements GenreStorage {
     public Genre getGenreById(int id) {
         log.info("Request to database for obtaining genre by id: {} obtained.", id);
         Genre genre  = new Genre();
+
         if(id <= 0) {
             throw new IncorrectParameterException("id of genre is equal to or less than zero.");
         }
         String sqlQuery = "SELECT * FROM genre WHERE genre_id = ?";
         SqlRowSet genreRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
+
         if(!genreRow.next()) {
             String genreWarning = "Genre with id: " + id + " doesn't exist.";
             throw new GenreNotFoundException(genreWarning);
@@ -51,6 +53,7 @@ public class GenreDbStorage implements GenreStorage {
     private Genre makeFilledGenre(int id, String name) {
         Genre genre = new Genre();
         genre.setId(id);
+        
         if(name != null) {
             genre.setName(name);
         }
