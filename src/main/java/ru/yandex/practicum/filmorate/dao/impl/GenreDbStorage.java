@@ -44,7 +44,6 @@ public class GenreDbStorage implements GenreStorage {
         log.info("Request to database for getting genre's collection obtained. Now {} mpa present.",
                 jdbcTemplate.queryForRowSet("SELECT COUNT(genre_id) from genre"));
         String sqlQuery = "SELECT * FROM genre";
-
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilledGenre(rs.getInt("genre_id"),
                 rs.getString("genre_name")));
     }
