@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS film (
     film_description varchar(255),
     release_date date,
     duration int,
-    mpa_id INTEGER REFERENCES mpa(mpa_id) ON DELETE CASCADE
+    mpa_id INTEGER REFERENCES mpa(mpa_id)
 );
 
 CREATE TABLE IF NOT EXISTS users (

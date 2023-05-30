@@ -139,18 +139,17 @@ public class FilmDbStorage implements FilmStorage {
 
             sqlQuery = "SELECT * FROM film_genre WHERE film_id = ?";
             filmRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
-
             List<Genre> genres = new ArrayList<>();
-            if (!filmRow.next()) {
-                film.setGenres(new HashSet<>(genres));
-            } else {
+            Set<Genre> genresToBeSorted = new TreeSet<>(Comparator.comparingInt(Genre::getId));
+            if (filmRow.next()) {
                 sqlQuery = "SELECT genre.genre_id, genre_name FROM genre JOIN film_genre ON genre.genre_id = " +
                         "film_genre.genre_id WHERE film_id = ?";
                 genres = jdbcTemplate.query(sqlQuery, (rs, rowNum) ->
                         makeFilledGenre(rs.getInt("genre.genre_id"),
                                 rs.getString("genre.genre_name")), id);
-                film.setGenres(new HashSet<>(genres));
             }
+            genresToBeSorted.addAll(genres);
+            film.setGenres(genresToBeSorted);
         }
         return film;
     }
@@ -260,8 +259,8 @@ public class FilmDbStorage implements FilmStorage {
         return resultList;
     }
 
-    private Film makeFilledFilm(Long id, Set<Long> likesToFilm, String name, String description,
-                                String releaseDate, Integer duration, Integer mpaId, String mpaName, Set<Genre> genres) {
+    private Film makeFilledFilm(Long id, Set<Long> likesToFilm, String name, String description, String releaseDate,
+                                Integer duration, Integer mpaId, String mpaName, Set<Genre> genres) {
         Film film = new Film();
         Mpa mpa = new Mpa();
         film.setId(id);

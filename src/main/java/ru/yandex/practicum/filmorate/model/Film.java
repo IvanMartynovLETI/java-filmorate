@@ -9,8 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 public class Film {
@@ -32,7 +31,7 @@ public class Film {
     private Duration duration;
 
     private Mpa mpa;
-    private Set<Genre> genres = new HashSet<>();
+    private Set<Genre> genres = new TreeSet<>(Comparator.comparingInt(Genre::getId));
 
     public void setLikeToFilm(User user) {
         likesToFilm.add(user.getId());
