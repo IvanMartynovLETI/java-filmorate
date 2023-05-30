@@ -6,5 +6,6 @@ import java.util.Collection;
 
 public interface GenreStorage {
     Genre getGenreById(int id);
+
     Collection<Genre> findAllGenres();
 }

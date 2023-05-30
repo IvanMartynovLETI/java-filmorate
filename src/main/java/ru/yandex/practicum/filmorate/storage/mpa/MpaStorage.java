@@ -6,5 +6,6 @@ import java.util.Collection;
 
 public interface MpaStorage {
     Mpa getMpaById(int id);
+
     Collection<Mpa> findAllMpa();
 }

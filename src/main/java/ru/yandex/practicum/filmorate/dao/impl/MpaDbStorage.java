@@ -24,14 +24,14 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public Mpa getMpaById(int id) {
         log.info("Request to database for obtaining mpa by id: {} obtained.", id);
-        Mpa mpa  = new Mpa();
-        if(id <= 0) {
+        Mpa mpa = new Mpa();
+        if (id <= 0) {
             throw new IncorrectParameterException("id of MPA is equal to or less than zero.");
         }
 
         String sqlQuery = "SELECT * FROM mpa WHERE mpa_id = ?";
         SqlRowSet mpaRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
-        if(!mpaRow.next()) {
+        if (!mpaRow.next()) {
             String mpaWarning = "MPA with id: " + id + " doesn't exist.";
             throw new MpaNotFoundException(mpaWarning);
         } else {
@@ -56,7 +56,7 @@ public class MpaDbStorage implements MpaStorage {
     private Mpa makeFilledMpa(int id, String name) {
         Mpa mpa = new Mpa();
         mpa.setId(id);
-        if(name != null) {
+        if (name != null) {
             mpa.setName(name);
         }
 

@@ -49,7 +49,7 @@ public class Validator {
         } else {
             String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
             SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, user.getId());
-            if(!userRow.next()) {
+            if (!userRow.next()) {
                 String userWarning = "User with id: " + user.getId() + " doesn't exist.";
                 throw new UserNotFoundException(userWarning);
             }
@@ -77,7 +77,7 @@ public class Validator {
         } else {
             String sqlQuery = "SELECT film_name FROM film WHERE film_id = ?";
             SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, film.getId());
-            if(!userRow.next()) {
+            if (!userRow.next()) {
                 String filmWarning = "Film with id: " + film.getId() + " doesn't exist.";
                 throw new FilmNotFoundException(filmWarning);
             }

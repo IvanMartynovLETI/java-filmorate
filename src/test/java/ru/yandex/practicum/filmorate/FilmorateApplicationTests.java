@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -87,6 +88,7 @@ class FilmorateApplicationTests {
         mpa2.setName("PG");
         film2.setMpa(mpa2);
     }
+
     //  UserDbStorage methods tests
     @Test
     public void shouldReturnAllUsers() {
@@ -106,7 +108,7 @@ class FilmorateApplicationTests {
     @Test
     public void shouldThrowUserNotFoundExceptionWhileAttemptingToGetUserWithIdOfMinus1() {
         final UserNotFoundException exception = assertThrows(UserNotFoundException.class,
-                ()-> userDbStorage.getUserById(-1L));
+                () -> userDbStorage.getUserById(-1L));
 
         assertEquals("User with id: -1 doesn't exist.", exception.getMessage());
     }
@@ -136,7 +138,7 @@ class FilmorateApplicationTests {
         user1.setId(-1L);
 
         final UserNotFoundException exception = assertThrows(UserNotFoundException.class,
-                ()-> userDbStorage.modifyUser(user1));
+                () -> userDbStorage.modifyUser(user1));
 
         assertEquals("User with id: -1 doesn't exist.", exception.getMessage());
 
@@ -187,7 +189,7 @@ class FilmorateApplicationTests {
         userDbStorage.addUserToFriends(user2.getId(), user3.getId());
         Optional<List<User>> commons = userDbStorage.getCommonFriends(user1.getId(), user2.getId());
 
-        if(commons.isPresent()) {
+        if (commons.isPresent()) {
             List<User> commonFriends = commons.get();
             assertTrue(Objects.equals(commonFriends.get(0).getId(), user3.getId()) & commons.get().size() == 1,
                     "Incorrect operation of getCommonFriends() method.");
@@ -200,7 +202,7 @@ class FilmorateApplicationTests {
     public void shouldReturnEmptyCollectionOfCommonFriends() {
         Optional<List<User>> commons = userDbStorage.getCommonFriends(user1.getId(), user2.getId());
 
-        if(commons.isPresent()) {
+        if (commons.isPresent()) {
             List<User> commonFriends = commons.get();
             assertTrue(commonFriends.isEmpty(), "Incorrect operation of getCommonFriends() method.");
         } else {
@@ -213,12 +215,12 @@ class FilmorateApplicationTests {
         userDbStorage.deleteUser(user1);
         List<User> users = (List<User>) userDbStorage.findAllUsers();
 
-        assertTrue(users.contains(user2) & users.contains(user3) &users.size() == 2,
+        assertTrue(users.contains(user2) & users.contains(user3) & users.size() == 2,
                 "Incorrect operation of deleteUser() method.");
     }
 
     @Test
-    public void shouldAddUser(){
+    public void shouldAddUser() {
         User user4 = new User();
         user4.setName("User4");
         user4.setLogin("login4");
@@ -252,7 +254,7 @@ class FilmorateApplicationTests {
     @Test
     public void shouldThrowFilmNotFoundExceptionWhileAttemptingToGetUserWithIdOfMinus1() {
         final FilmNotFoundException exception = assertThrows(FilmNotFoundException.class,
-                ()-> filmDbStorage.getFilmById(-1L));
+                () -> filmDbStorage.getFilmById(-1L));
 
         assertEquals("Film with id: -1 doesn't exist.", exception.getMessage());
     }
@@ -282,7 +284,7 @@ class FilmorateApplicationTests {
         film1.setId(-1L);
 
         final FilmNotFoundException exception = assertThrows(FilmNotFoundException.class,
-                ()-> filmDbStorage.modifyFilm(film1));
+                () -> filmDbStorage.modifyFilm(film1));
 
         assertEquals("Film with id: -1 doesn't exist.", exception.getMessage());
 
@@ -356,7 +358,7 @@ class FilmorateApplicationTests {
 
         List<Film> topFilms = filmDbStorage.getTopFilms(1);
 
-        assertTrue(topFilms.size()==1 & topFilms.get(0).getId().equals(film1.getId()),
+        assertTrue(topFilms.size() == 1 & topFilms.get(0).getId().equals(film1.getId()),
                 "Incorrect operation of getTopFilms() method.");
     }
 
@@ -373,7 +375,7 @@ class FilmorateApplicationTests {
     @Test
     public void shouldThrowIncorrectParameterExceptionWhileAttemptingToGetGenreWithIdOfMinus1() {
         final IncorrectParameterException exception = assertThrows(IncorrectParameterException.class,
-                ()-> genreDbStorage.getGenreById(-1));
+                () -> genreDbStorage.getGenreById(-1));
 
         assertEquals("id of genre is equal to or less than zero.", exception.getMessage());
     }
@@ -381,14 +383,14 @@ class FilmorateApplicationTests {
     @Test
     public void shouldThrowGenreNotFoundExceptionWhileAttemptingToGetGenreWithIdOf34() {
         final GenreNotFoundException exception = assertThrows(GenreNotFoundException.class,
-                ()-> genreDbStorage.getGenreById(34));
+                () -> genreDbStorage.getGenreById(34));
 
         assertEquals("Genre with id: 34 doesn't exist.", exception.getMessage());
     }
 
     @Test
     public void shouldReturnAllGenres() {
-        List<Genre> genres = (List<Genre>)genreDbStorage.findAllGenres();
+        List<Genre> genres = (List<Genre>) genreDbStorage.findAllGenres();
 
         Genre genre1 = new Genre();
         genre1.setId(1);
@@ -432,7 +434,7 @@ class FilmorateApplicationTests {
     @Test
     public void shouldThrowIncorrectParameterExceptionWhileAttemptingToGetMpaWithIdOfMinus1() {
         final IncorrectParameterException exception = assertThrows(IncorrectParameterException.class,
-                ()-> mpaDbStorage.getMpaById(-1));
+                () -> mpaDbStorage.getMpaById(-1));
 
         assertEquals("id of MPA is equal to or less than zero.", exception.getMessage());
     }
@@ -440,14 +442,14 @@ class FilmorateApplicationTests {
     @Test
     public void shouldThrowMpaNotFoundExceptionWhileAttemptingToGetGenreWithIdOf34() {
         final MpaNotFoundException exception = assertThrows(MpaNotFoundException.class,
-                ()-> mpaDbStorage.getMpaById(34));
+                () -> mpaDbStorage.getMpaById(34));
 
         assertEquals("MPA with id: 34 doesn't exist.", exception.getMessage());
     }
 
     @Test
     public void shouldReturnAllMPA() {
-        List<Mpa> mpas = (List<Mpa>)mpaDbStorage.findAllMpa();
+        List<Mpa> mpas = (List<Mpa>) mpaDbStorage.findAllMpa();
 
         Mpa mpa1 = new Mpa();
         mpa1.setId(1);

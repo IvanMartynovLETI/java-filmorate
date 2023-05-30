@@ -51,7 +51,7 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
         SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, checkedPeople.getId());
 
-        if(!userRow.next()) {
+        if (!userRow.next()) {
             String userWarning = "User with id: " + checkedPeople.getId() + " doesn't exist.";
             throw new UserNotFoundException(userWarning);
         }
@@ -77,7 +77,7 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
         SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, checkedPeople.getId());
 
-        if(!userRow.next()) {
+        if (!userRow.next()) {
             String userWarning = "User with id: " + checkedPeople.getId() + " doesn't exist.";
             throw new UserNotFoundException(userWarning);
         }
@@ -97,7 +97,7 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "SELECT * FROM users WHERE users_id = ?";
         SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
 
-        if(!userRow.next()) {
+        if (!userRow.next()) {
             String userWarning = "User with id: " + id + " doesn't exist.";
             throw new UserNotFoundException(userWarning);
         } else {
@@ -147,7 +147,7 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
         SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
 
-        if(!userRow.next()) {
+        if (!userRow.next()) {
             String userWarning = "User with id: " + id + " doesn't exist.";
             throw new UserNotFoundException(userWarning);
         }
