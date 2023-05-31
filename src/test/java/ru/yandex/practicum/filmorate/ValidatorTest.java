@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validator.Validator;
@@ -45,10 +44,10 @@ public class ValidatorTest {
     }
 
     @Test
-    public void shouldThrowUserNotFoundExceptionWhileAttemptingToUpdateUserWhichDoesNotPresentInMap() {
+    public void shouldThrowEntityNotFoundExceptionWhileAttemptingToUpdateUserWhichDoesNotPresentInMap() {
         user.setId(12L);
 
-        final UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+        final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> validator.validateUser(user, users, false));
 
         String userWarning = "User with id: 12 doesn't exist.";
@@ -57,10 +56,10 @@ public class ValidatorTest {
     }
 
     @Test
-    public void shouldReturnFilmNotFoundExceptionWhileAttemptingToUpdateFilmWhichDoesNotPresentInMap() {
+    public void shouldReturnEntityNotFoundExceptionWhileAttemptingToUpdateFilmWhichDoesNotPresentInMap() {
         film.setId(18L);
 
-        final FilmNotFoundException exception = assertThrows(FilmNotFoundException.class,
+        final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> validator.validateFilm(film, films, false));
 
         String filmWarning = "Film with id: 18 doesn't exist.";

@@ -3,11 +3,11 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
 import java.util.Collection;
@@ -22,6 +22,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> films;
     private final Validator validator;
+    private final UserService userService;
 
     private static final int FILMS_COUNT_BY_DEFAULT = 10;
 
@@ -56,7 +57,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film getFilmById(Long id) {
         log.info("Request for obtaining film by id: {} obtained.", id);
         if (!films.containsKey(id)) {
-            throw new FilmNotFoundException("Film with id: " + id + " not found.");
+            throw new EntityNotFoundException("Film with id: " + id + " not found.");
         }
 
         return films.get(id);
@@ -69,7 +70,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film addLikeToFilm(Long id, Long userId, UserStorage userStorage) {
+    public Film addLikeToFilm(Long id, Long userId) {
         if (id == null) {
             throw new IncorrectParameterException("'id' parameter equals to null.");
         }
@@ -77,7 +78,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new IncorrectParameterException("'userId' parameter equals to null.");
         }
         Film film = getFilmById(id);
-        User user = userStorage.getUserById(userId);
+        User user = userService.getUserById(userId);
 
         log.info("User with id: {} set like to film with id: {}", userId, id);
 
@@ -88,7 +89,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film deleteLikeFromFilm(Long filmId, Long userId, UserStorage userStorage) {
+    public Film deleteLikeFromFilm(Long filmId, Long userId) {
         if (filmId == null) {
             throw new IncorrectParameterException("'id' parameter equals to null.");
         }
@@ -96,7 +97,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new IncorrectParameterException("'userId' parameter equals to null.");
         }
         Film film = getFilmById(filmId);
-        User user = userStorage.getUserById(userId);
+        User user = userService.getUserById(userId);
 
         log.info("User with id: {} deletes like from film with id: {}", user.getId(), film.getId());
 

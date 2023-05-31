@@ -11,26 +11,8 @@ import ru.yandex.practicum.filmorate.exception.*;
 @Slf4j
 @RestControllerAdvice
 public class ExceptionApiHandler {
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorMessage> userNotFoundException(UserNotFoundException e) {
-        log.warn(e.toString());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(FilmNotFoundException.class)
-    public ResponseEntity<ErrorMessage> filmNotFoundException(FilmNotFoundException e) {
-        log.warn(e.toString());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(MpaNotFoundException.class)
-    public ResponseEntity<ErrorMessage> mpaNotFoundException(MpaNotFoundException e) {
-        log.warn(e.toString());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
-    }
-
-    @ExceptionHandler(GenreNotFoundException.class)
-    public ResponseEntity<ErrorMessage> genreNotFoundException(GenreNotFoundException e) {
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorMessage> entityNotFoundException(EntityNotFoundException e) {
         log.warn(e.toString());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
     }

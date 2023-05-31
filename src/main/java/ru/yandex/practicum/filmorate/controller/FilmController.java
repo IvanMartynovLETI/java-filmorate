@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -16,7 +15,6 @@ import java.util.*;
 @AllArgsConstructor
 public class FilmController {
     private final FilmService filmService;
-    private final UserStorage userStorage;
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
@@ -54,7 +52,7 @@ public class FilmController {
 
         log.info("Request for setting like to film obtained.");
 
-        return filmService.addLikeToFilm(id, userId, userStorage);
+        return filmService.addLikeToFilm(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")

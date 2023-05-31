@@ -3,8 +3,7 @@ package ru.yandex.practicum.filmorate.validator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -33,7 +32,7 @@ public class Validator {
         } else {
             if (!users.containsKey(user.getId())) {
                 String userWarning = "User with id: " + user.getId() + " doesn't exist.";
-                throw new UserNotFoundException(userWarning);
+                throw new EntityNotFoundException(userWarning);
             }
         }
 
@@ -51,7 +50,7 @@ public class Validator {
             SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, user.getId());
             if (!userRow.next()) {
                 String userWarning = "User with id: " + user.getId() + " doesn't exist.";
-                throw new UserNotFoundException(userWarning);
+                throw new EntityNotFoundException(userWarning);
             }
         }
 
@@ -64,7 +63,7 @@ public class Validator {
         } else {
             if (!films.containsKey(film.getId())) {
                 String filmWarning = "Film with id: " + film.getId() + " doesn't exist.";
-                throw new FilmNotFoundException(filmWarning);
+                throw new EntityNotFoundException(filmWarning);
             }
         }
 
@@ -79,7 +78,7 @@ public class Validator {
             SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, film.getId());
             if (!userRow.next()) {
                 String filmWarning = "Film with id: " + film.getId() + " doesn't exist.";
-                throw new FilmNotFoundException(filmWarning);
+                throw new EntityNotFoundException(filmWarning);
             }
         }
 

@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -14,8 +13,6 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-
-    @Autowired
     private final UserStorage userStorage;
 
     public User addUser(User user) {

@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
@@ -17,7 +17,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component()
+@Component
 @Primary
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -49,12 +49,7 @@ public class UserDbStorage implements UserStorage {
         log.info("Request to database for user with id '{}' update obtained.", user.getId());
         User checkedPeople = validator.validateUserInDataBase(user, jdbcTemplate, false);
         String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
-        SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, checkedPeople.getId());
-
-        if (!userRow.next()) {
-            String userWarning = "User with id: " + checkedPeople.getId() + " doesn't exist.";
-            throw new UserNotFoundException(userWarning);
-        }
+        jdbcTemplate.queryForRowSet(sqlQuery, checkedPeople.getId());
 
         sqlQuery = "UPDATE users SET name = ?, email = ?, login = ?, birthday = ? WHERE users_id = ?";
         jdbcTemplate.update(sqlQuery,
@@ -75,16 +70,7 @@ public class UserDbStorage implements UserStorage {
         log.info("Request to database for user with id '{}' deletion obtained.", user.getId());
         User checkedPeople = validator.validateUserInDataBase(user, jdbcTemplate, false);
         String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
-        SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, checkedPeople.getId());
-
-        if (!userRow.next()) {
-            String userWarning = "User with id: " + checkedPeople.getId() + " doesn't exist.";
-            throw new UserNotFoundException(userWarning);
-        }
-
-        jdbcTemplate.update("DELETE FROM user_friends_status WHERE user_id = ?", checkedPeople.getId());
-        jdbcTemplate.update("DELETE FROM user_friends_status WHERE friend_id = ?", checkedPeople.getId());
-        jdbcTemplate.update("DELETE FROM film_like WHERE user_id = ?", checkedPeople.getId());
+        jdbcTemplate.queryForRowSet(sqlQuery, checkedPeople.getId());
         jdbcTemplate.update("DELETE FROM users WHERE users_id = ?", checkedPeople.getId());
 
         return checkedPeople;
@@ -99,7 +85,7 @@ public class UserDbStorage implements UserStorage {
 
         if (!userRow.next()) {
             String userWarning = "User with id: " + id + " doesn't exist.";
-            throw new UserNotFoundException(userWarning);
+            throw new EntityNotFoundException(userWarning);
         } else {
             user.setId(userRow.getLong("users_id"));
             user.setFriendsIds(new HashSet<>(jdbcTemplate.queryForList("SELECT friend_id FROM " +
@@ -134,23 +120,18 @@ public class UserDbStorage implements UserStorage {
         }
         if (id <= 0) {
             String userWarning = "User with id: " + id + " doesn't exist.";
-            throw new UserNotFoundException(userWarning);
+            throw new EntityNotFoundException(userWarning);
         }
         if (friendId == null) {
             throw new IncorrectParameterException("'friendId' parameter equals to null.");
         }
         if (friendId <= 0) {
-            String userWarning = "User with id: " + id + " doesn't exist.";
-            throw new UserNotFoundException(userWarning);
+            String userWarning = "User with id: " + friendId + " doesn't exist.";
+            throw new EntityNotFoundException(userWarning);
         }
 
         String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
-        SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
-
-        if (!userRow.next()) {
-            String userWarning = "User with id: " + id + " doesn't exist.";
-            throw new UserNotFoundException(userWarning);
-        }
+        jdbcTemplate.queryForRowSet(sqlQuery, id);
 
         log.info("User with id: {} wants to add user with id: {} as friend.", id, friendId);
 
@@ -195,10 +176,7 @@ public class UserDbStorage implements UserStorage {
 
         log.info("Request for database: obtaining common friends for user with id: {} and user with id: {}", id,
                 otherId);
-        List<User> commonFriends = new ArrayList<>();
-        if (user.getFriendsIds() == null || otherUser.getFriendsIds() == null) {
-            return Optional.of(commonFriends);
-        }
+        List<User> commonFriends;
 
         Set<Long> friendsIdsForUser1 = new HashSet<>(user.getFriendsIds());
         friendsIdsForUser1.retainAll(otherUser.getFriendsIds());
@@ -236,8 +214,12 @@ public class UserDbStorage implements UserStorage {
     private User makeFilledUser(Long id, Set<Long> friendsIds, String email, String login, String name,
                                 LocalDate birthday) {
         User user = new User();
-        user.setId(id);
-        user.setFriendsIds(friendsIds);
+        if (id != null) {
+            user.setId(id);
+        }
+        if (!friendsIds.isEmpty()) {
+            user.setFriendsIds(friendsIds);
+        }
         user.setEmail(email);
         user.setLogin(login);
         user.setName(name);

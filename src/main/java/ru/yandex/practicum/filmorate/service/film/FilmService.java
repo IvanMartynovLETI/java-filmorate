@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
 
     public Film addFilm(Film film) {
         return filmStorage.addFilm(film);
@@ -33,12 +31,12 @@ public class FilmService {
         return filmStorage.getFilmById(id);
     }
 
-    public Film addLikeToFilm(Long id, Long userId, UserStorage userStorage) {
-        return filmStorage.addLikeToFilm(id, userId, userStorage);
+    public Film addLikeToFilm(Long id, Long userId) {
+        return filmStorage.addLikeToFilm(id, userId);
     }
 
     public Film deleteLikeFromFilm(Long filmId, Long userId) {
-        return filmStorage.deleteLikeFromFilm(filmId, userId, userStorage);
+        return filmStorage.deleteLikeFromFilm(filmId, userId);
     }
 
     public List<Film> getTopFilms(Integer count) {
