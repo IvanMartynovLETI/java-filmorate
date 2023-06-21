@@ -5,8 +5,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
@@ -226,5 +227,50 @@ public class UserDbStorage implements UserStorage {
         user.setBirthday(birthday);
 
         return user;
+    }
+
+    @Override
+    public Optional<List<Film>> getRecommendationsFilms(Long id) {
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+
+        log.info("Request for database: obtaining list of friends for user with id: {}.", id);
+
+        // Лист фильмов которые нравятся целевому пользователю
+        List<Integer> likeFilmsUser = jdbcTemplate.queryForList(
+                "SELECT film_id FROM film_like WHERE user_id = ?", Integer.class, id);
+
+        // map пользователей со списком фильмов, которые они оценили
+        Map<Integer, List<Integer>> usersLikedMovie = new HashMap<>();
+
+        for (Integer filmId : likeFilmsUser) {
+            List<Integer> users = jdbcTemplate.queryForList(
+                    "SELECT user_id FROM film_like WHERE film_id = ?", Integer.class, filmId);
+            if (!(users.size() == 0)) {
+                for (Integer userId : users) {
+                    List<Integer> filmsUser = jdbcTemplate.queryForList(
+                            "SELECT film_id FROM film_like WHERE user_id = ?", Integer.class, userId);
+                    usersLikedMovie.put(userId, filmsUser);
+                }
+            }
+        }
+
+        // Содержит количество общих понравившихся фильмов с целевым пользователем
+        Map<Integer, Integer> countCrossFilms = new HashMap<>();
+        for (Integer userId : usersLikedMovie.keySet()) {
+            for (Integer filmId : usersLikedMovie.get(userId)) {
+                if(likeFilmsUser.contains(filmId)){
+                    if (countCrossFilms.get(userId) == null) {
+                        countCrossFilms.put(userId, 1);
+                    } else {
+                        countCrossFilms.put(userId, countCrossFilms.get(userId) + 1);
+                    }
+                }
+            }
+        }
+
+
+        return Optional.empty();
     }
 }

@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -53,5 +56,9 @@ public class UserService {
     public Collection<User> getFriendsOfUser(Long id) {
 
         return userStorage.getFriendsOfUser(id);
+    }
+
+    public Optional<List<Film>> getRecommendationsFilms(Long id){
+        return userStorage.getRecommendationsFilms(id);
     }
 }
