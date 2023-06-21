@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.*;
 
@@ -27,5 +28,13 @@ public class ExceptionApiHandler {
     public ResponseEntity<ErrorMessage> incorrectParameterException(IncorrectParameterException e) {
         log.warn(e.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(e.getMessage()));
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorMessage handleRunTimeException(final RuntimeException e) {
+        log.warn(e.getMessage());
+        return new ErrorMessage(
+                e.getMessage()
+        );
     }
 }

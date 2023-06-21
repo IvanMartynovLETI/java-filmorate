@@ -202,29 +202,25 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getTopFilms(Integer count) {
-        if (count == null) {
+        if (count == null || count <= 0) {
             count = FILMS_COUNT_BY_DEFAULT;
-        }
-        if (count < 0) {
-            throw new IncorrectParameterException("'count' parameter less than zero.");
         }
         List<Film> popularFilms;
         List<Film> unpopularFilms;
         List<Film> resultList;
-
-        String sqlQuery = "SELECT * FROM film_like GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT " + count;
+        String sqlQuery = "SELECT film_id" +
+                " FROM film_like" +
+                " GROUP BY film_id" +
+                " ORDER BY COUNT(user_id)" +
+                " DESC LIMIT " + count;
         popularFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> getFilmById(rs.getLong("film_id")));
-
         sqlQuery = "SELECT * FROM film";
         unpopularFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> getFilmById(rs.getLong("film_id")));
-
         popularFilms.addAll(unpopularFilms);
-
         if (popularFilms.size() <= count) {
             resultList = popularFilms;
         } else {
             resultList = new ArrayList<>();
-
             for (int i = 0; i < count; i++) {
                 resultList.add(popularFilms.get(i));
             }

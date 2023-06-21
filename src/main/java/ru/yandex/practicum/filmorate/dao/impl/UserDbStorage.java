@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
@@ -27,6 +28,7 @@ public class UserDbStorage implements UserStorage {
         this.jdbcTemplate = jdbcTemplate;
         this.validator = validator;
     }
+
 
     @Override
     public User addUser(User user) {
@@ -78,6 +80,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(Long id) {
+
         log.info("Request to database for obtaining user by id: {} obtained.", id);
         User user = new User();
         String sqlQuery = "SELECT * FROM users WHERE users_id = ?";

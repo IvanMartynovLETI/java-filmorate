@@ -66,7 +66,6 @@ public class Validator {
                 throw new EntityNotFoundException(filmWarning);
             }
         }
-
         return film;
     }
 

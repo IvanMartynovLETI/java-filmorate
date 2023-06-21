@@ -30,6 +30,9 @@ public class FilmService {
     public Film getFilmById(Long id) {
         return filmStorage.getFilmById(id);
     }
+    public Film deleteFilm(Film film){
+        return filmStorage.deleteFilm(film);
+    }
 
     public Film addLikeToFilm(Long id, Long userId) {
         return filmStorage.addLikeToFilm(id, userId);

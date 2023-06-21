@@ -34,6 +34,11 @@ public class UserService {
 
         return userStorage.getUserById(id);
     }
+  public  User deleteUser(User user) {
+        if (user == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");}
+            return userStorage.deleteUser(user);
+        }
 
     public User addUserToFriends(Long id, Long friendId) {
 

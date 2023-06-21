@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
@@ -13,13 +14,13 @@ import java.util.*;
 @RestController
 @RequestMapping("/films")
 @AllArgsConstructor
+
 public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("Request for film adding obtained.");
-
         return filmService.addFilm(film);
     }
 
@@ -39,7 +40,7 @@ public class FilmController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public Film getFilmById(@PathVariable final Long id) {
+    public Film getFilmById(@Valid @PathVariable final Long id) {
         log.info("Request for getting film by id obtained.");
 
         return filmService.getFilmById(id);
@@ -67,9 +68,15 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseBody
-    public List<Film> getTopFilms(@RequestParam(required = false) final Integer count) {
+    public List<Film> getTopFilms(@RequestParam(value = "count",
+            defaultValue = "10", required = false) int count) {
         log.info("Request for list of top films getting obtained.");
-
         return filmService.getTopFilms(count);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public Film deleteFilm(@PathVariable("filmId") long filmId) {
+        log.info("Фильм с id =" + filmId + " удален");
+        return filmService.deleteFilm(filmService.getFilmById(filmId));
     }
 }

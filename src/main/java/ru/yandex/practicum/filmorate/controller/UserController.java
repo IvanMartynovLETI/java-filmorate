@@ -39,7 +39,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public User getUserById(@PathVariable(required = false) final Long id) {
+    public User getUserById(@Valid @PathVariable(required = false) final Long id) {
         log.info("Request for getting user by id obtained.");
 
         return userService.getUserById(id);
@@ -79,5 +79,11 @@ public class UserController {
         log.info("Request for getting common friends obtained.");
 
         return userService.getCommonFriends(id, otherId);
+    }
+    @DeleteMapping("{userId}")
+    @ResponseBody
+    public void deleteUser(@PathVariable("userId") long userId) {
+        log.info("Пользователь " + userId + " был удален");
+        userService.deleteUser(userService.getUserById(userId));
     }
 }

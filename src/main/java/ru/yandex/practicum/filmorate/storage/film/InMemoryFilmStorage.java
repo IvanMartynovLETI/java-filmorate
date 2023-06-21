@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
@@ -59,7 +60,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!films.containsKey(id)) {
             throw new EntityNotFoundException("Film with id: " + id + " not found.");
         }
-
         return films.get(id);
     }
 
@@ -113,7 +113,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (count == null) {
             count = FILMS_COUNT_BY_DEFAULT;
         }
-        if (count < 0) {
+        if (count <= 0) {
             throw new IncorrectParameterException("'count' parameter equals to null.");
         }
         return findAllMovies().stream()
@@ -122,7 +122,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     private int compare(Film f0, Film f1) {
-
+        if (!films.containsValue(validator.validateFilm(f0, films, false)) && !(films.containsValue(validator.validateFilm(f1, films, false)))) {
+            throw new ValidationException("Mistakes");
+        }
         return -(f0.getLikesToFilm().size() - f1.getLikesToFilm().size());
     }
 }
