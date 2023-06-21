@@ -14,9 +14,7 @@ import java.util.Collection;
 @Slf4j
 @RequiredArgsConstructor
 public class DirectorService {
-    private final JdbcTemplate jdbcTemplate;
     private final DirectorStorage directorStorage;
-    private final FilmStorage filmStorage;
 
     public Director addDirector(Director director) {
         return directorStorage.addDirector(director);
@@ -34,9 +32,7 @@ public class DirectorService {
         return directorStorage.deleteDirector(id);
     }
 
-    public Collection<Director> findAllDirectors(){
+    public Collection<Director> findAllDirectors() {
         return directorStorage.findAllDirectors();
     }
-
-    public Director addDirectorToFilm;
 }

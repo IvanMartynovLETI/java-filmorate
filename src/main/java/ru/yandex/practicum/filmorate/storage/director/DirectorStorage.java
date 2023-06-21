@@ -16,5 +16,4 @@ public interface DirectorStorage {
     Director deleteDirector(long id);
 
     Collection<Director> findAllDirectors();
-
 }

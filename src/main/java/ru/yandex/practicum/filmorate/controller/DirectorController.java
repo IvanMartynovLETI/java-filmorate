@@ -2,11 +2,8 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.director.DirectorService;
 
 import javax.validation.Valid;
@@ -43,8 +40,8 @@ public class DirectorController {
         return directorService.modifyDirector(director);
     }
 
-    @DeleteMapping
-    public Director deleteDirector (@PathVariable long id){
+    @DeleteMapping("/{id}")
+    public Director deleteDirector(@PathVariable long id) {
         log.info("Request for deleting director by id obtained.");
         return directorService.deleteDirector(id);
     }

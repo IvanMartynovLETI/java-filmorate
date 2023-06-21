@@ -69,14 +69,15 @@ public class DirectorDbStorage implements DirectorStorage {
                 director.getName(),
                 director.getId());
 
-
         return getDirectorById(director.getId());
     }
 
     @Override
     public Director deleteDirector(long id) {
-
-        return null;
+        log.info("Request to database for director with id '{}' deletion obtained.", id);
+        Director director = getDirectorById(id);
+        jdbcTemplate.update("DELETE FROM directors WHERE director_id = ?", id);
+        return director;
     }
 
     @Override
@@ -88,15 +89,11 @@ public class DirectorDbStorage implements DirectorStorage {
 
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlQuery);
 
-        while (sqlRowSet.next()){
-            long id= sqlRowSet.getLong("director_id");
+        while (sqlRowSet.next()) {
+            long id = sqlRowSet.getLong("director_id");
             String name = sqlRowSet.getString("director_name");
             directors.add(new Director(id, name));
         }
-
         return directors;
     }
-
-
-
 }
