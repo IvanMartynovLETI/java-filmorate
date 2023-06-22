@@ -84,7 +84,7 @@ public class UserController {
 
     @GetMapping("/{id}/recommendations")
     @ResponseBody
-    public Optional<List<Film>> getRecommendationsFilms(@PathVariable(required = false) final Long id) {
+    public Optional<List<Film>> getRecommendationsFilms(@PathVariable Long id) {
         log.info("Request for getting friends of user obtained.");
 
         return userService.getRecommendationsFilms(id);
