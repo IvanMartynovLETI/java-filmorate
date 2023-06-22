@@ -21,4 +21,8 @@ public interface FilmStorage {
     Film deleteLikeFromFilm(Long filmId, Long userId);
 
     List<Film> getTopFilms(Integer count);
+
+    List<Film> getFilmsWithDirector(Long directorId, String sortBy);
+
+    List<Film> searchFilmsBy(String query, List<String> by);
 }

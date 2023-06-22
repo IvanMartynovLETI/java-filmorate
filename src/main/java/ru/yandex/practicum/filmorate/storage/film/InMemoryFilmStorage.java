@@ -121,6 +121,15 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Film> getFilmsWithDirector(Long directorId, String sortBy) {
+        return null;
+    }
+
+    public List<Film> searchFilmsBy(String query, List<String> by) {
+        return null;
+    }
+
     private int compare(Film f0, Film f1) {
 
         return -(f0.getLikesToFilm().size() - f1.getLikesToFilm().size());

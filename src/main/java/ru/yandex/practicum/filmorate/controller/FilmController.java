@@ -72,4 +72,20 @@ public class FilmController {
 
         return filmService.getTopFilms(count);
     }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getFilmsWithDirector(@PathVariable(required = false) final Long directorId,
+                                                 @RequestParam(required = false) final String sortBy) {
+        log.info("Request for a sorted list of director's films.");
+
+        return filmService.getFilmsWithDirector(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    @ResponseBody
+    public List<Film> searchFilms(@RequestParam String query, @RequestParam List<String> by) {
+        log.info("Request to search for films getting obtained.");
+
+        return filmService.searchFilmsBy(query, by);
+    }
 }
