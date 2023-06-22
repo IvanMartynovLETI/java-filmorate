@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +11,8 @@ import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.GenreDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.MpaDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.UserDbStorage;
-import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -23,6 +21,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -665,5 +665,17 @@ class FilmorateApplicationTests {
         assertTrue(mpas.contains(mpa1) & mpas.contains(mpa2) & mpas.contains(mpa3)
                         & mpas.contains(mpa4) & mpas.contains(mpa5) & mpas.size() == 5,
                 "Incorrect operation of findAllMpa() method.");
+    }
+
+    @Test
+    public void testRecommendationsFilms() {
+        filmDbStorage.addLikeToFilm(film1.getId(), user1.getId());
+        filmDbStorage.addLikeToFilm(film1.getId(), user2.getId());
+        filmDbStorage.addLikeToFilm(film2.getId(), user2.getId());
+
+        Optional<List<Film>> actualFilm = userDbStorage.getRecommendationsFilms(user1.getId());
+
+        assertEquals(1, actualFilm.get().size());
+        assertEquals(film2.getName(), actualFilm.get().get(0).getName());
     }
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,14 +21,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @Primary
+@RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
     private final Validator validator;
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate, Validator validator) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.validator = validator;
-    }
+    private final FilmDbStorage filmDbStorage;
 
     @Override
     public User addUser(User user) {
@@ -231,46 +229,107 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<List<Film>> getRecommendationsFilms(Long id) {
+
         if (id == null) {
             throw new IncorrectParameterException("'id' parameter equals to null.");
         }
 
+        // Хранит список рекомендованных фильмов для целевого пользователя
+        List<Film> finalFilms = new ArrayList<>();
+
         log.info("Request for database: obtaining list of friends for user with id: {}.", id);
 
         // Лист фильмов которые нравятся целевому пользователю
-        List<Integer> likeFilmsUser = jdbcTemplate.queryForList(
-                "SELECT film_id FROM film_like WHERE user_id = ?", Integer.class, id);
+        List<Long> likeFilmsUser = jdbcTemplate.queryForList(
+                "SELECT film_id FROM film_like WHERE user_id = ?", Long.class, id);
+
+        if (likeFilmsUser.size() == 0) {
+            return Optional.of(finalFilms);
+        }
 
         // map пользователей со списком фильмов, которые они оценили
-        Map<Integer, List<Integer>> usersLikedMovie = new HashMap<>();
+        Map<Long, List<Long>> usersLikedMovie = getLikeMovieUsers(likeFilmsUser);
 
-        for (Integer filmId : likeFilmsUser) {
-            List<Integer> users = jdbcTemplate.queryForList(
-                    "SELECT user_id FROM film_like WHERE film_id = ?", Integer.class, filmId);
-            if (!(users.size() == 0)) {
-                for (Integer userId : users) {
-                    List<Integer> filmsUser = jdbcTemplate.queryForList(
-                            "SELECT film_id FROM film_like WHERE user_id = ?", Integer.class, userId);
+        usersLikedMovie.remove(id);
+
+        // Содержит количество общих понравившихся фильмов с целевым пользователем
+        Map<Long, Long> countCrossFilms = getCountCrossFilms(usersLikedMovie, likeFilmsUser);
+
+        // Берем 10% пользователей с максимальным количеству пересечений с целевым пользователем
+        Integer maxCrossFilm = 0;
+        Integer lengthCountFilm = countCrossFilms.size();
+        if (lengthCountFilm / 100 == 0 && lengthCountFilm != 0) {
+            maxCrossFilm = 1;
+        } else {
+            maxCrossFilm = Math.round((lengthCountFilm / 100) * 10);
+        }
+
+        if (maxCrossFilm != 0) {
+            List<Long> sortUsers = countCrossFilms.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.naturalOrder()))
+                    .limit(maxCrossFilm)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+            //Проверяем на пересечение фильмов у пользователей с целевым пользователем и формируем рекомендательный
+            // список id фильмов
+            Set<Long> recommendationsFilmsId = new HashSet<>();
+            for (Long userId : sortUsers) {
+                List<Long> filmsUser = jdbcTemplate.queryForList(
+                        "SELECT film_id FROM film_like WHERE user_id = ?", Long.class, userId);
+                if (filmsUser.size() != 0) {
+                    for (Long idFilm : filmsUser) {
+                        if (!(likeFilmsUser.contains(idFilm))) {
+                            recommendationsFilmsId.add(idFilm);
+                        }
+                    }
+                }
+            }
+
+            // Собираем лист фильмов
+            for (Long idFilm : recommendationsFilmsId) {
+                Film film = filmDbStorage.getFilmById(idFilm);
+                finalFilms.add(film);
+            }
+        }
+        return Optional.of(finalFilms);
+    }
+
+    // Проверка на количество общих понравившихся фильмов с целевым пользователем
+    private Map<Long, List<Long>> getLikeMovieUsers(List<Long> likeFilmsUser) {
+
+        Map<Long, List<Long>> usersLikedMovie = new HashMap<>();
+
+        for (Long filmId : likeFilmsUser) {
+            List<Long> users = jdbcTemplate.queryForList(
+                    "SELECT user_id FROM film_like WHERE film_id = ?", Long.class, filmId);
+            if (users.size() != 0) {
+                for (Long userId : users) {
+                    List<Long> filmsUser = jdbcTemplate.queryForList(
+                            "SELECT film_id FROM film_like WHERE user_id = ?", Long.class, userId);
                     usersLikedMovie.put(userId, filmsUser);
                 }
             }
         }
+        return usersLikedMovie;
+    }
 
-        // Содержит количество общих понравившихся фильмов с целевым пользователем
-        Map<Integer, Integer> countCrossFilms = new HashMap<>();
-        for (Integer userId : usersLikedMovie.keySet()) {
-            for (Integer filmId : usersLikedMovie.get(userId)) {
-                if(likeFilmsUser.contains(filmId)){
+    // Проверяет количество общих понравившихся фильмов с целевым пользователем
+    private Map<Long, Long> getCountCrossFilms(Map<Long, List<Long>> usersLikedMovie, List<Long> likeFilmsUser) {
+
+        Map<Long, Long> countCrossFilms = new HashMap<>();
+
+        for (Long userId : usersLikedMovie.keySet()) {
+            for (Long filmId : usersLikedMovie.get(userId)) {
+                if (likeFilmsUser.contains(filmId)) {
                     if (countCrossFilms.get(userId) == null) {
-                        countCrossFilms.put(userId, 1);
+                        countCrossFilms.put(userId, 1L);
                     } else {
                         countCrossFilms.put(userId, countCrossFilms.get(userId) + 1);
                     }
                 }
             }
         }
-
-
-        return Optional.empty();
+        return countCrossFilms;
     }
 }
