@@ -255,8 +255,6 @@ public class FilmDbStorage implements FilmStorage {
             filmRows =
                     jdbcTemplate.queryForRowSet(
                             "SELECT f.FILM_ID, f.RELEASE_DATE as rd, fd.DIRECTOR_ID FROM film AS f LEFT JOIN film_directors AS fd ON f.film_id=fd.film_id WHERE fd.director_id=? GROUP BY f.FILM_ID ORDER BY RELEASE_DATE", directorId);
-        } else {
-
         }
         while (filmRows.next()) {
             Long id = filmRows.getLong("film_id");
