@@ -58,7 +58,7 @@ public class UserService {
         return userStorage.getFriendsOfUser(id);
     }
 
-    public Optional<List<Film>> getRecommendationsFilms(Long id){
+    public Optional<List<Film>> getRecommendationsFilms(Long id) {
         return userStorage.getRecommendationsFilms(id);
     }
 }
