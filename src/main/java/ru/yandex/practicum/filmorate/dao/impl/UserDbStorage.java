@@ -239,19 +239,24 @@ public class UserDbStorage implements UserStorage {
         log.info("Запрос к базе данных по {} пользователя.", id);
 
         List<Long> recommendationsFilmsId = jdbcTemplate.queryForList(
-                " SELECT DISTINCT top_20.film_id" +
-                        " FROM (SELECT dop_user.user_id, " +
-                        " COUNT(dop_user.film_id) OVER (PARTITION BY dop_user.user_id) AS count_films," +
-                        " dop_user.film_id" +
-                        " FROM (SELECT * FROM film_like " +
-                        "       WHERE user_id != ?) AS dop_user" +
-                        " LEFT JOIN (SELECT * FROM film_like" +
-                        "           WHERE user_id = ?) AS base_user " +
-                        " ON base_user.film_id = dop_user.film_id" +
-                        " ORDER BY count_films DESC" +
-                        " LIMIT 20) AS top_20" +
-                        " WHERE top_20.film_id not in (SELECT film_id FROM film_like " +
-                        " WHERE user_id = ?) ", Long.class, id, id, id);
+                    " SELECT film_id " +
+                        " FROM film_like " +
+                        " JOIN (SELECT dop_user.user_id," +
+                        "       COUNT(dop_user.film_id) AS count_films" +
+                        "       FROM (SELECT * FROM film_like" +
+                        "             WHERE user_id != ?) AS dop_user" +
+                        "       JOIN (SELECT * FROM film_like" +
+                        "             WHERE user_id = ?) AS base_user" +
+                        "       ON base_user.film_id = dop_user.film_id" +
+                        "       GROUP BY dop_user.user_id" +
+                        "       ORDER BY count_films DESC" +
+                        "       LIMIT (SELECT CEILING(COUNT(user_id) * 0.1)" +
+                        "              FROM film_like" +
+                        "              WHERE film_id IN (SELECT film_id FROM film_like " +
+                        "                                WHERE user_id = ?))) AS user_top" +
+                        " ON film_like.user_id = user_top.user_id" +
+                        " WHERE film_like.film_id not IN (SELECT film_id FROM film_like " +
+                        "                                 WHERE user_id = ?)" , Long.class, id, id, id, id);
 
         if (recommendationsFilmsId.size() == 0) {
             return Optional.of(finalFilms);
