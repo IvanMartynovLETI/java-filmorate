@@ -30,7 +30,8 @@ public class FilmService {
     public Film getFilmById(Long id) {
         return filmStorage.getFilmById(id);
     }
-    public Film deleteFilm(Film film){
+
+    public Film deleteFilm(Film film) {
         return filmStorage.deleteFilm(film);
     }
 
