@@ -20,7 +20,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public User create(@Valid @RequestBody User user) {
+    public User create(@Valid
+                       @RequestBody User user) {
         log.info("Request for user adding obtained.");
         return userService.addUser(user);
     }
@@ -94,6 +95,7 @@ public class UserController {
     @DeleteMapping("{userId}")
     @ResponseBody
     public void deleteUser(@PathVariable("userId") long userId) {
+
         log.info("Пользователь " + userId + " был удален");
 
         userService.deleteUser(userService.getUserById(userId));
