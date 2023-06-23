@@ -131,7 +131,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     private int compare(Film f0, Film f1) {
-
         return -(f0.getLikesToFilm().size() - f1.getLikesToFilm().size());
     }
 }
