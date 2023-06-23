@@ -14,17 +14,16 @@ import ru.yandex.practicum.filmorate.exception.*;
 @RestControllerAdvice
 
 public class ExceptionApiHandler {
-    @ExceptionHandler (EntityNotFoundException.class)
+    @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorMessage> entityNotFoundException(EntityNotFoundException e) {
 
         log.warn(e.toString());
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorMessage(e.getMessage()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
 
     }
 
-    @ExceptionHandler (MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> methodArgumentNotValidException(MethodArgumentNotValidException e) {
 
         log.warn(e.toString());
@@ -34,18 +33,17 @@ public class ExceptionApiHandler {
 
     }
 
-    @ExceptionHandler (IncorrectParameterException.class)
+    @ExceptionHandler(IncorrectParameterException.class)
     public ResponseEntity<ErrorMessage> incorrectParameterException(IncorrectParameterException e) {
 
        log.warn(e.toString());
 
-        return ResponseEntity.status (HttpStatus.BAD_REQUEST).
-                body(new ErrorMessage(e.getMessage()));
+        return ResponseEntity.status (HttpStatus.BAD_REQUEST).body(new ErrorMessage(e.getMessage()));
 
     }
 
     @ExceptionHandler
-    @ResponseStatus (HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage handleRunTimeException(final RuntimeException e) {
 
         log.warn(e.getMessage());
