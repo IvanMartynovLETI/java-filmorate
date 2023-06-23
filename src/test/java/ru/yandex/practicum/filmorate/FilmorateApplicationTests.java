@@ -676,6 +676,6 @@ class FilmorateApplicationTests {
         Optional<List<Film>> actualFilm = userDbStorage.getRecommendationsFilms(user1.getId());
 
         assertEquals(1, actualFilm.get().size());
-        assertEquals(film2.getName(), actualFilm.get().get(0).getName());
+        assertEquals(film2.getId(), actualFilm.get().get(0).getId());
     }
 }

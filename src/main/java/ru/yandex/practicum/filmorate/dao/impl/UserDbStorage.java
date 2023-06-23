@@ -234,102 +234,33 @@ public class UserDbStorage implements UserStorage {
             throw new IncorrectParameterException("'id' parameter equals to null.");
         }
 
-        // Хранит список рекомендованных фильмов для целевого пользователя
         List<Film> finalFilms = new ArrayList<>();
 
-        log.info("Request for database: obtaining list of friends for user with id: {}.", id);
+        log.info("Запрос к базе данных по {} пользователя.", id);
 
-        // Лист фильмов которые нравятся целевому пользователю
-        List<Long> likeFilmsUser = jdbcTemplate.queryForList(
-                "SELECT film_id FROM film_like WHERE user_id = ?", Long.class, id);
+        List<Long> recommendationsFilmsId = jdbcTemplate.queryForList(
+                " SELECT DISTINCT top_20.film_id" +
+                        " FROM (SELECT dop_user.user_id, " +
+                        " COUNT(dop_user.film_id) OVER (PARTITION BY dop_user.user_id) AS count_films," +
+                        " dop_user.film_id" +
+                        " FROM (SELECT * FROM film_like " +
+                        "       WHERE user_id != ?) AS dop_user" +
+                        " LEFT JOIN (SELECT * FROM film_like" +
+                        "           WHERE user_id = ?) AS base_user " +
+                        " ON base_user.film_id = dop_user.film_id" +
+                        " ORDER BY count_films DESC" +
+                        " LIMIT 20) AS top_20" +
+                        " WHERE top_20.film_id not in (SELECT film_id FROM film_like " +
+                        " WHERE user_id = ?) ", Long.class, id, id, id);
 
-        if (likeFilmsUser.size() == 0) {
+        if (recommendationsFilmsId.size() == 0) {
             return Optional.of(finalFilms);
         }
 
-        // map пользователей со списком фильмов, которые они оценили
-        Map<Long, List<Long>> usersLikedMovie = getLikeMovieUsers(likeFilmsUser);
-
-        usersLikedMovie.remove(id);
-
-        // Содержит количество общих понравившихся фильмов с целевым пользователем
-        Map<Long, Long> countCrossFilms = getCountCrossFilms(usersLikedMovie, likeFilmsUser);
-
-        // Берем 10% пользователей с максимальным количеству пересечений с целевым пользователем
-        Integer maxCrossFilm = 0;
-        Integer lengthCountFilm = countCrossFilms.size();
-        if (lengthCountFilm / 100 == 0 && lengthCountFilm != 0) {
-            maxCrossFilm = 1;
-        } else {
-            maxCrossFilm = Math.round((lengthCountFilm / 100) * 10);
-        }
-
-        if (maxCrossFilm != 0) {
-            List<Long> sortUsers = countCrossFilms.entrySet().stream()
-                    .sorted(Map.Entry.comparingByValue(Comparator.naturalOrder()))
-                    .limit(maxCrossFilm)
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
-
-            //Проверяем на пересечение фильмов у пользователей с целевым пользователем и формируем рекомендательный
-            // список id фильмов
-            Set<Long> recommendationsFilmsId = new HashSet<>();
-            for (Long userId : sortUsers) {
-                List<Long> filmsUser = jdbcTemplate.queryForList(
-                        "SELECT film_id FROM film_like WHERE user_id = ?", Long.class, userId);
-                if (filmsUser.size() != 0) {
-                    for (Long idFilm : filmsUser) {
-                        if (!(likeFilmsUser.contains(idFilm))) {
-                            recommendationsFilmsId.add(idFilm);
-                        }
-                    }
-                }
-            }
-
-            // Собираем лист фильмов
-            for (Long idFilm : recommendationsFilmsId) {
-                Film film = filmDbStorage.getFilmById(idFilm);
-                finalFilms.add(film);
-            }
+        for (Long idFilm : recommendationsFilmsId) {
+            Film film = filmDbStorage.getFilmById(idFilm);
+            finalFilms.add(film);
         }
         return Optional.of(finalFilms);
-    }
-
-    // Проверка на количество общих понравившихся фильмов с целевым пользователем
-    private Map<Long, List<Long>> getLikeMovieUsers(List<Long> likeFilmsUser) {
-
-        Map<Long, List<Long>> usersLikedMovie = new HashMap<>();
-
-        for (Long filmId : likeFilmsUser) {
-            List<Long> users = jdbcTemplate.queryForList(
-                    "SELECT user_id FROM film_like WHERE film_id = ?", Long.class, filmId);
-            if (users.size() != 0) {
-                for (Long userId : users) {
-                    List<Long> filmsUser = jdbcTemplate.queryForList(
-                            "SELECT film_id FROM film_like WHERE user_id = ?", Long.class, userId);
-                    usersLikedMovie.put(userId, filmsUser);
-                }
-            }
-        }
-        return usersLikedMovie;
-    }
-
-    // Проверяет количество общих понравившихся фильмов с целевым пользователем
-    private Map<Long, Long> getCountCrossFilms(Map<Long, List<Long>> usersLikedMovie, List<Long> likeFilmsUser) {
-
-        Map<Long, Long> countCrossFilms = new HashMap<>();
-
-        for (Long userId : usersLikedMovie.keySet()) {
-            for (Long filmId : usersLikedMovie.get(userId)) {
-                if (likeFilmsUser.contains(filmId)) {
-                    if (countCrossFilms.get(userId) == null) {
-                        countCrossFilms.put(userId, 1L);
-                    } else {
-                        countCrossFilms.put(userId, countCrossFilms.get(userId) + 1);
-                    }
-                }
-            }
-        }
-        return countCrossFilms;
     }
 }
