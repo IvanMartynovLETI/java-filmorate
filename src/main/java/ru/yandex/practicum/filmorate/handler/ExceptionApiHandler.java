@@ -29,6 +29,7 @@ public class ExceptionApiHandler {
         log.warn(e.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(e.getMessage()));
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage handleRunTimeException(final RuntimeException e) {
