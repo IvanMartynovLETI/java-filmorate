@@ -35,7 +35,6 @@ public class ExceptionApiHandler {
 
     }
 
-
     @ExceptionHandler
     @ResponseStatus (HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage handleRunTimeException(final RuntimeException e) {
@@ -44,6 +43,5 @@ public class ExceptionApiHandler {
                 e.getMessage()
         );
     }
-
 
 }
