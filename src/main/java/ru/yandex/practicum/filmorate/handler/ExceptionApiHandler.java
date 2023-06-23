@@ -15,7 +15,7 @@ import ru.yandex.practicum.filmorate.exception.*;
 
 public class ExceptionApiHandler {
     @ExceptionHandler (EntityNotFoundException.class)
-    public ResponseEntity <ErrorMessage> entityNotFoundException (EntityNotFoundException e) {
+    public ResponseEntity<ErrorMessage> entityNotFoundException(EntityNotFoundException e) {
 
         log.warn(e.toString());
 
@@ -25,7 +25,7 @@ public class ExceptionApiHandler {
     }
 
     @ExceptionHandler (MethodArgumentNotValidException.class)
-    public ResponseEntity <ErrorMessage> methodArgumentNotValidException (MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorMessage> methodArgumentNotValidException(MethodArgumentNotValidException e) {
 
         log.warn(e.toString());
 
@@ -35,7 +35,7 @@ public class ExceptionApiHandler {
     }
 
     @ExceptionHandler (IncorrectParameterException.class)
-    public ResponseEntity <ErrorMessage> incorrectParameterException (IncorrectParameterException e) {
+    public ResponseEntity<ErrorMessage> incorrectParameterException(IncorrectParameterException e) {
 
        log.warn(e.toString());
 
@@ -46,7 +46,7 @@ public class ExceptionApiHandler {
 
     @ExceptionHandler
     @ResponseStatus (HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorMessage handleRunTimeException (final RuntimeException e) {
+    public ErrorMessage handleRunTimeException(final RuntimeException e) {
 
         log.warn(e.getMessage());
 
