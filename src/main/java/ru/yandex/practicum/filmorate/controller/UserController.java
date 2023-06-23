@@ -39,7 +39,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public User getUserById(@PathVariable (required = false) final Long id) {
+    public User getUserById(@PathVariable(required = false) final Long id) {
         log.info("Request for getting user by id obtained.");
 
         return userService.getUserById(id);
@@ -47,8 +47,8 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     @ResponseBody
-    public User addUserToFriend(@PathVariable (required = false) final Long id,
-                                @PathVariable (required = false) final Long friendId) {
+    public User addUserToFriend(@PathVariable(required = false) final Long id,
+                                @PathVariable(required = false) final Long friendId) {
         log.info("Request for adding user to friends obtained.");
 
         return userService.addUserToFriends(id, friendId);
@@ -57,8 +57,8 @@ public class UserController {
 
     @DeleteMapping("/{id}/friends/{friendId}")
     @ResponseBody
-    public User deleteUserFromFriends(@PathVariable (required = false) final Long id,
-                                      @PathVariable (required = false) final Long friendId) {
+    public User deleteUserFromFriends(@PathVariable(required = false) final Long id,
+                                      @PathVariable(required = false) final Long friendId) {
         log.info("Request for deleting user from friends obtained.");
 
         return userService.deleteUserFromFriend(id, friendId);
@@ -66,7 +66,7 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     @ResponseBody
-    public Collection<User> getFriendsOfUser(@PathVariable (required = false) final Long id) {
+    public Collection<User> getFriendsOfUser(@PathVariable(required = false) final Long id) {
         log.info("Request for getting friends of user obtained.");
 
         return userService.getFriendsOfUser(id);
@@ -74,15 +74,16 @@ public class UserController {
 
     @GetMapping("/{id}/friends/common/{otherId}")
     @ResponseBody
-    public Optional<List<User>> getCommonFriends(@PathVariable (required = false) final Long id,
-                                                 @PathVariable (required = false) final Long otherId) {
+    public Optional<List<User>> getCommonFriends(@PathVariable(required = false) final Long id,
+                                                 @PathVariable(required = false) final Long otherId) {
         log.info("Request for getting common friends obtained.");
 
         return userService.getCommonFriends(id, otherId);
     }
+
     @DeleteMapping("{userId}")
     @ResponseBody
-    public void deleteUser(@PathVariable ("userId") long userId) {
+    public void deleteUser(@PathVariable("userId") long userId) {
         log.info("Пользователь " + userId + " был удален");
         userService.deleteUser(userService.getUserById(userId));
     }
