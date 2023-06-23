@@ -80,6 +80,7 @@ public class UserController {
         log.info("Request for getting friends of user obtained.");
 
         return userService.getFriendsOfUser(id);
+
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
