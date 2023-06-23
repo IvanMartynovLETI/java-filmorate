@@ -29,7 +29,8 @@ public class ExceptionApiHandler {
 
         log.warn(e.toString());
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(e.getMessage()));
+        return ResponseEntity.status (HttpStatus.BAD_REQUEST).
+                body(new ErrorMessage(e.getMessage()));
 
     }
 
@@ -38,7 +39,7 @@ public class ExceptionApiHandler {
 
        log.warn(e.toString());
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).
+        return ResponseEntity.status (HttpStatus.BAD_REQUEST).
                 body(new ErrorMessage(e.getMessage()));
 
     }
