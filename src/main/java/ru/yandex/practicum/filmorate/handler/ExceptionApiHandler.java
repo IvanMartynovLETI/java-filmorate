@@ -16,19 +16,23 @@ public class ExceptionApiHandler {
     public ResponseEntity<ErrorMessage> entityNotFoundException(EntityNotFoundException e) {
         log.warn(e.toString());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
+
     }
 
     @ExceptionHandler (MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> methodArgumentNotValidException(MethodArgumentNotValidException e) {
         log.warn(e.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(e.getMessage()));
+
     }
 
     @ExceptionHandler (IncorrectParameterException.class)
     public ResponseEntity<ErrorMessage> incorrectParameterException(IncorrectParameterException e) {
         log.warn(e.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(e.getMessage()));
+
     }
+
 
     @ExceptionHandler
     @ResponseStatus (HttpStatus.INTERNAL_SERVER_ERROR)
@@ -38,5 +42,6 @@ public class ExceptionApiHandler {
                 e.getMessage()
         );
     }
+
 
 }
