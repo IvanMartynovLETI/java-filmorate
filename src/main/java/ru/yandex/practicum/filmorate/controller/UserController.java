@@ -80,8 +80,8 @@ public class UserController {
         log.info("Request for getting common friends obtained.");
 
         return userService.getCommonFriends(id, otherId);
-
     }
+
 
     @DeleteMapping("{userId}")
     @ResponseBody
