@@ -256,7 +256,7 @@ public class UserDbStorage implements UserStorage {
                         "                                WHERE user_id = ?))) AS user_top" +
                         " ON film_like.user_id = user_top.user_id" +
                         " WHERE film_like.film_id not IN (SELECT film_id FROM film_like " +
-                        "                                 WHERE user_id = ?)" , Long.class, id, id, id, id);
+                        "                                 WHERE user_id = ?)", Long.class, id, id, id, id);
 
         if (recommendationsFilmsId.size() == 0) {
             return Optional.of(finalFilms);
