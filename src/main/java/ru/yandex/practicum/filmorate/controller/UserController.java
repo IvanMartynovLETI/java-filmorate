@@ -43,7 +43,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public User getUserById(@Valid @PathVariable(required = false) final Long id) {
+    public User getUserById(@Valid
+                            @PathVariable(required = false) final Long id) {
 
         log.info("Request for getting user by id obtained.");
 
