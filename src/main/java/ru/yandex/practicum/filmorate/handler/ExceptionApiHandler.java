@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.exception.*;
 
 @Slf4j
 @RestControllerAdvice
+
 public class ExceptionApiHandler {
     @ExceptionHandler (EntityNotFoundException.class)
     public ResponseEntity<ErrorMessage> entityNotFoundException(EntityNotFoundException e) {
