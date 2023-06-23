@@ -16,33 +16,48 @@ public class UserService {
     private final UserStorage userStorage;
 
     public User addUser(User user) {
+
         return userStorage.addUser(user);
+
     }
 
     public User modifyUser(User user) {
+
         return userStorage.modifyUser(user);
+
     }
 
     public Collection<User> findAll() {
+
         return userStorage.findAllUsers();
+
     }
 
     public User getUserById(Long id) {
+
         if (id == null) {
+
             throw new IncorrectParameterException("'id' parameter equals to null.");
+
         }
 
         return userStorage.getUserById(id);
     }
-  public  User deleteUser(User user) {
+
+    public User deleteUser(User user) {
+
         if (user == null) {
-            throw new IncorrectParameterException("'id' parameter equals to null.");}
-            return userStorage.deleteUser(user);
+
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+
         }
+        return userStorage.deleteUser(user);
+    }
 
     public User addUserToFriends(Long id, Long friendId) {
 
         return userStorage.addUserToFriends(id, friendId);
+
     }
 
     public User deleteUserFromFriend(Long id, Long friendId) {
