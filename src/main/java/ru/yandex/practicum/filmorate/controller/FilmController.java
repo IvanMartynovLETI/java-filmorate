@@ -39,7 +39,7 @@ public class FilmController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public Film getFilmById(@Valid @PathVariable final Long id) {
+    public Film getFilmById(@PathVariable final Long id) {
         log.info("Request for getting film by id obtained.");
 
         return filmService.getFilmById(id);
@@ -47,8 +47,8 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseBody
-    public Film setLikeToFilm(@PathVariable(required = false) final Long id,
-                              @PathVariable(required = false) final Long userId) {
+    public Film setLikeToFilm(@PathVariable (required = false) final Long id,
+                              @PathVariable (required = false) final Long userId) {
 
         log.info("Request for setting like to film obtained.");
 
@@ -57,8 +57,8 @@ public class FilmController {
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseBody
-    public Film deleteLikeFromFilm(@PathVariable(required = false) final Long id,
-                                   @PathVariable(required = false) final Long userId) {
+    public Film deleteLikeFromFilm(@PathVariable (required = false) final Long id,
+                                   @PathVariable (required = false) final Long userId) {
 
         log.info("Request for deleting like from film obtained.");
 
@@ -67,14 +67,14 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseBody
-    public List<Film> getTopFilms(@RequestParam(value = "count",
+    public List<Film> getTopFilms(@RequestParam (value = "count",
             defaultValue = "10", required = false) int count) {
         log.info("Request for list of top films getting obtained.");
         return filmService.getTopFilms(count);
     }
 
     @DeleteMapping("/{filmId}")
-    public Film deleteFilm(@PathVariable("filmId") long filmId) {
+    public Film deleteFilm(@PathVariable ("filmId") long filmId) {
         log.info("Фильм с id =" + filmId + " удален");
         return filmService.deleteFilm(filmService.getFilmById(filmId));
     }
