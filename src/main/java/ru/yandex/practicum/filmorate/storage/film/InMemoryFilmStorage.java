@@ -113,7 +113,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (count == null) {
             count = FILMS_COUNT_BY_DEFAULT;
         }
-        if (count <= 0) {
+        if (count < 0) {
             throw new IncorrectParameterException("'count' parameter equals to null.");
         }
         return findAllMovies().stream()

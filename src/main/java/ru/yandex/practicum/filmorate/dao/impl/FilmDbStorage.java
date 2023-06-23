@@ -202,8 +202,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getTopFilms(Integer count) {
-        if (count == null || count <= 0) {
+        if (count == null) {
             count = FILMS_COUNT_BY_DEFAULT;
+        }
+        if (count < 0) {
+            throw new IncorrectParameterException("'count' parameter less than zero.");
         }
         List<Film> popularFilms;
         List<Film> unpopularFilms;
