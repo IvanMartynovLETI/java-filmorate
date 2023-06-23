@@ -18,6 +18,7 @@ public class ExceptionApiHandler {
     public ResponseEntity <ErrorMessage> entityNotFoundException(EntityNotFoundException e) {
 
         log.warn(e.toString());
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorMessage(e.getMessage()));
 
@@ -27,6 +28,7 @@ public class ExceptionApiHandler {
     public ResponseEntity <ErrorMessage> methodArgumentNotValidException(MethodArgumentNotValidException e) {
 
         log.warn(e.toString());
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(e.getMessage()));
 
     }
@@ -35,6 +37,7 @@ public class ExceptionApiHandler {
     public ResponseEntity <ErrorMessage> incorrectParameterException(IncorrectParameterException e) {
 
        log.warn(e.toString());
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).
                 body(new ErrorMessage(e.getMessage()));
 
@@ -45,10 +48,10 @@ public class ExceptionApiHandler {
     public ErrorMessage handleRunTimeException(final RuntimeException e) {
 
         log.warn(e.getMessage());
+
         return new ErrorMessage(
                 e.getMessage()
         );
-
     }
 
 }
