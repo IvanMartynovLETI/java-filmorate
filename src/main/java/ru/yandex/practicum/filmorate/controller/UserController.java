@@ -80,8 +80,7 @@ public class UserController {
 
     @DeleteMapping("{userId}")
     @ResponseBody
-    public void deleteUser
-            (@PathVariable("userId") long userId) {
+    public void deleteUser(@PathVariable("userId") long userId) {
         log.info("Пользователь " + userId + " был удален");
         userService.deleteUser(userService.getUserById(userId));
     }
