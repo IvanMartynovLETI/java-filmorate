@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -81,7 +80,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Collection<Director> findAllDirectors() {
+    public Set<Director> findAllDirectors() {
         log.info("Request to database for all directors collecting obtained.");
 
         Set<Director> directors = new HashSet();
