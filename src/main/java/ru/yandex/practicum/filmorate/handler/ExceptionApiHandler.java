@@ -29,7 +29,8 @@ public class ExceptionApiHandler {
     @ExceptionHandler (IncorrectParameterException.class)
     public ResponseEntity<ErrorMessage> incorrectParameterException(IncorrectParameterException e) {
         log.warn(e.toString());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorMessage(e.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(e.getMessage()));
 
     }
 
