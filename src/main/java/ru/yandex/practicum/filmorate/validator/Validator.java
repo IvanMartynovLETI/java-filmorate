@@ -5,6 +5,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 public class Validator {
     private Long peopleId = 0L;
     private Long movieId = 0L;
+    private Long reviewId = 0L;
 
     public Long getActualFilmId() {
         return ++movieId;
@@ -20,6 +22,10 @@ public class Validator {
 
     public Long getActualUserId() {
         return ++peopleId;
+    }
+
+    public Long getActualReviewId() {
+        return ++reviewId;
     }
 
 
@@ -66,7 +72,6 @@ public class Validator {
                 throw new EntityNotFoundException(filmWarning);
             }
         }
-
         return film;
     }
 
@@ -83,5 +88,29 @@ public class Validator {
         }
 
         return film;
+    }
+
+    public Review validateReviewInDataBase(Review review, JdbcTemplate jdbcTemplate, boolean isCreationMethod) {
+        if (isCreationMethod) {
+            review.setReviewId(getActualReviewId());
+        } else {
+            String sqlQuery = "SELECT content FROM reviews WHERE reviews_id = ?";
+            SqlRowSet reviewRow = jdbcTemplate.queryForRowSet(sqlQuery, review.getReviewId());
+            if (!reviewRow.next()) {
+                String reviewWarning = "Review with id: " + review.getReviewId() + " doesn't exist.";
+                throw new EntityNotFoundException(reviewWarning);
+            }
+        }
+
+        return review;
+    }
+
+    public void validateUserInDataBaseId(Long id, JdbcTemplate jdbcTemplate) {
+        String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
+        SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
+        if (!userRow.next()) {
+            String userWarning = "User with id: " + id + " doesn't exist.";
+            throw new EntityNotFoundException(userWarning);
+        }
     }
 }

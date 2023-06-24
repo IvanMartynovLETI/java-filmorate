@@ -4,19 +4,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     public User addUser(User user) {
         return userStorage.addUser(user);
@@ -38,14 +36,26 @@ public class UserService {
         return userStorage.getUserById(id);
     }
 
-    public User addUserToFriends(Long id, Long friendId) {
+    public User deleteUser(User user) {
 
-        return userStorage.addUserToFriends(id, friendId);
+        if (user == null) {
+
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+
+        }
+        return userStorage.deleteUser(user);
+    }
+
+    public User addUserToFriends(Long id, Long friendId) {
+        User user = userStorage.addUserToFriends(id, friendId);
+        feedStorage.addFeedList(id,friendId, EventType.FRIEND, Operation.ADD);
+        return user;
     }
 
     public User deleteUserFromFriend(Long id, Long friendId) {
-
-        return userStorage.deleteUserFromFriend(id, friendId);
+        User user = userStorage.deleteUserFromFriend(id, friendId);
+        feedStorage.addFeedList(id,friendId, EventType.FRIEND, Operation.REMOVE);
+        return user;
     }
 
     public Optional<List<User>> getCommonFriends(Long id, Long otherId) {
@@ -56,6 +66,11 @@ public class UserService {
     public Collection<User> getFriendsOfUser(Long id) {
 
         return userStorage.getFriendsOfUser(id);
+    }
+
+    public Collection<Feed> getFeed(Long id) {
+
+        return feedStorage.getFeedList(id);
     }
 
     public Optional<List<Film>> getRecommendationsFilms(Long id) {

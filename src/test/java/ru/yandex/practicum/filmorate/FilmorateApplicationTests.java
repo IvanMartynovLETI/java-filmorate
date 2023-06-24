@@ -595,7 +595,7 @@ class FilmorateApplicationTests {
     }
 
     @Test
-    public void shouldThrowIncorrectParameterExceptionWhileAttemptingToGetGenreWithIdOfMinus1() {
+    public void shouldThrowIncorrectParameterExceptionWhileAttemptingToGetGenreWithIdOfMinus1() throws IncorrectParameterException {
         final IncorrectParameterException exception = assertThrows(IncorrectParameterException.class,
                 () -> genreDbStorage.getGenreById(-1));
 
