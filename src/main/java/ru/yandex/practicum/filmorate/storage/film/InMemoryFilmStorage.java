@@ -121,10 +121,27 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .collect(Collectors.toList());
     }
 
+
+    @Override
+    public List<Film> getFilmsWithDirector(Long directorId, String sortBy) {
+        return null;
+    }
+
+    public List<Film> searchFilmsBy(String query, List<String> by) {
+        return null;
+    }
+
     private int compare(Film f0, Film f1) {
-        if (!films.containsValue(validator.validateFilm(f0, films, false)) && !(films.containsValue(validator.validateFilm(f1, films, false)))) {
+        return -(f0.getLikesToFilm().size() - f1.getLikesToFilm().size());
+    }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        if (userId == null || friendId == null || userId <= 0 || friendId <= 0) {
             throw new ValidationException("Mistakes");
         }
-        return -(f0.getLikesToFilm().size() - f1.getLikesToFilm().size());
+        return getTopFilms(10).stream()
+                .sorted(this::compare)
+                .collect(Collectors.toList());
+
     }
 }

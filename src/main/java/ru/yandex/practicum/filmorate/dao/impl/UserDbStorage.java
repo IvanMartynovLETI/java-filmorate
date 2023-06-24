@@ -7,10 +7,14 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -141,7 +145,6 @@ public class UserDbStorage implements UserStorage {
                 "VALUES(?, ?, ?)", id, friendId, "Confirmed");
         jdbcTemplate.update("INSERT INTO user_friends_status(user_id, friend_id, status_of_friendship) " +
                 "VALUES(?, ?, ?)", friendId, id, "Unconfirmed");
-
         return getUserById(id);
     }
 
@@ -160,7 +163,6 @@ public class UserDbStorage implements UserStorage {
                 "status_of_friendship = ?", id, friendId, "Confirmed");
         jdbcTemplate.update("DELETE FROM user_friends_status WHERE user_id = ? AND friend_id = ? AND " +
                 "status_of_friendship = ?", friendId, id, "Unconfirmed");
-
         return getUserById(id);
     }
 
