@@ -44,6 +44,7 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Director getDirectorById(Long id) {
         Director director;
+        log.info("Request to database for getting director by id of '{}' obtained.", id);
         String sqlQuery = "SELECT * FROM directors WHERE director_id = ?";
 
         SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
