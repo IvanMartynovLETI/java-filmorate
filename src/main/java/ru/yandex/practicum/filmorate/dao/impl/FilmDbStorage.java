@@ -219,7 +219,7 @@ public class FilmDbStorage implements FilmStorage {
             stringBuilder.append(" WHERE film.film_id IN (SELECT film_genre.film_id FROM film_genre WHERE genre_id = " + genreId + ")");
         }
         if (year > 0) {
-            if(genreId > 0) {
+            if (genreId > 0) {
                 stringBuilder.append(" AND EXTRACT(YEAR FROM CAST(film.release_date AS date)) = " + year);
             } else {
                 stringBuilder.append(" WHERE EXTRACT(YEAR FROM CAST(film.release_date AS date)) = " + year);
