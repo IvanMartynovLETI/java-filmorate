@@ -7,7 +7,8 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.service.director.DirectorService;
 
 import javax.validation.Valid;
-import java.util.Collection;
+
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -17,7 +18,9 @@ public class DirectorController {
     private final DirectorService directorService;
 
     @GetMapping
-    public Collection<Director> findAllDirectors() {
+
+    public Set<Director> findAllDirectors() {
+
         log.info("Request for receiving of all directors obtained.");
         return directorService.findAllDirectors();
     }
@@ -45,4 +48,5 @@ public class DirectorController {
         log.info("Request for deleting director by id obtained.");
         return directorService.deleteDirector(id);
     }
+
 }

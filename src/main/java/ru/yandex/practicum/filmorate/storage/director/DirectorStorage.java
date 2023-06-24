@@ -2,8 +2,7 @@ package ru.yandex.practicum.filmorate.storage.director;
 
 import ru.yandex.practicum.filmorate.model.Director;
 
-import java.util.Collection;
-
+import java.util.Set;
 
 public interface DirectorStorage {
 
@@ -15,5 +14,5 @@ public interface DirectorStorage {
 
     Director deleteDirector(long id);
 
-    Collection<Director> findAllDirectors();
+    Set<Director> findAllDirectors();
 }

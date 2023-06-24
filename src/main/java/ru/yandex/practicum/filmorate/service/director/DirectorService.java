@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.service.director;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 
-import java.util.Collection;
+import java.util.Set;
+
 
 @Service
 @Slf4j
@@ -30,7 +32,8 @@ public class DirectorService {
         return directorStorage.deleteDirector(id);
     }
 
-    public Collection<Director> findAllDirectors() {
+
+    public Set<Director> findAllDirectors() {
         return directorStorage.findAllDirectors();
     }
 }

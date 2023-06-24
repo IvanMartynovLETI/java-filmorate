@@ -240,6 +240,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getFilmsWithDirector(Long directorId, String sortBy) {
         List<Film> films = new ArrayList<>();
+
+        log.info("Request to database for list of films with director obtained.");
+
         SqlRowSet filmRows =
                 jdbcTemplate.queryForRowSet(
                         "SELECT * FROM directors  WHERE director_id=?", directorId);
@@ -262,6 +265,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         return films;
     }
+
 
     public List<Film> searchFilmsBy(String query, List<String> by) {
         List<Film> films = new ArrayList<>();
