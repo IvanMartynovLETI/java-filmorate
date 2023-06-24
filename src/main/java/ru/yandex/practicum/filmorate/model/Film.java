@@ -32,6 +32,7 @@ public class Film {
 
     private Mpa mpa;
     private Set<Genre> genres = new TreeSet<>();
+    private Set<Director> directors = new TreeSet<>();
 
     public void setLikeToFilm(User user) {
         likesToFilm.add(user.getId());
