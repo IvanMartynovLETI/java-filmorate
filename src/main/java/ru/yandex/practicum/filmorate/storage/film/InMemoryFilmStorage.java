@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
@@ -132,5 +133,15 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private int compare(Film f0, Film f1) {
         return -(f0.getLikesToFilm().size() - f1.getLikesToFilm().size());
+    }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        if (userId == null || friendId == null || userId <= 0 || friendId <= 0) {
+            throw new ValidationException("Mistakes");
+        }
+        return getTopFilms(10).stream()
+                .sorted(this::compare)
+                .collect(Collectors.toList());
+
     }
 }

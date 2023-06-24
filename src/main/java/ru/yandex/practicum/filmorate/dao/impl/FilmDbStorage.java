@@ -346,4 +346,55 @@ public class FilmDbStorage implements FilmStorage {
         }
         return dataStr.toString();
     }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        if (userId == null || userId <= 0 || friendId == null || friendId <= 0) {
+            throw new IncorrectParameterException("id' parameter equals to null.");
+        }
+
+        List<Film> popularFilms;
+        List<Film> commonFilms;
+        List<Film> resultList = new ArrayList<>();
+        Set<Long> set = new HashSet<>();
+
+        String sqlQuery = "SELECT film_id " +
+                "FROM film_like " +
+                "WHERE user_id = " + userId +
+                " OR user_id IN (SELECT user_id " +
+                "                 FROM user_friends_status " +
+                "                 WHERE friend_id = " + friendId + ")";
+        popularFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) ->
+                getFilmById(rs.getLong("film_id")));
+
+        if (popularFilms.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        sqlQuery = "SELECT film_id " +
+                "FROM film_like " +
+                "GROUP BY film_id " +
+                "ORDER BY COUNT(user_id) DESC " +
+                "LIMIT 10";
+        commonFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) ->
+                getFilmById(rs.getLong("film_id")));
+
+        if (commonFilms.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        for (Film film : popularFilms) {
+            if (!set.contains(film.getId())) {
+                set.add(film.getId());
+                for (Film commonFilm : commonFilms) {
+                    if (film.getId().equals(commonFilm.getId())) {
+                        resultList.add(film);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return resultList;
+    }
 }
