@@ -60,7 +60,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!films.containsKey(id)) {
             throw new EntityNotFoundException("Film with id: " + id + " not found.");
         }
-
         return films.get(id);
     }
 
@@ -121,6 +120,7 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .sorted(this::compare).limit(count)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<Film> getFilmsWithDirector(Long directorId, String sortBy) {

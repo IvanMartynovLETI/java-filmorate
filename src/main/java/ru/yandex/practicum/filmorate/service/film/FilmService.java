@@ -35,6 +35,10 @@ public class FilmService {
         return filmStorage.getFilmById(id);
     }
 
+    public Film deleteFilm(Film film) {
+        return filmStorage.deleteFilm(film);
+    }
+
     public Film addLikeToFilm(Long id, Long userId) {
         Film film = filmStorage.addLikeToFilm(id, userId);
         feedStorage.addFeedList(userId, id, EventType.LIKE, Operation.ADD);

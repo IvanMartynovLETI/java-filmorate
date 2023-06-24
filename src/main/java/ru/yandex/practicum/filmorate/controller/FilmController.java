@@ -13,13 +13,13 @@ import java.util.*;
 @RestController
 @RequestMapping("/films")
 @AllArgsConstructor
+
 public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("Request for film adding obtained.");
-
         return filmService.addFilm(film);
     }
 
@@ -47,8 +47,8 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseBody
-    public Film setLikeToFilm(@PathVariable(required = false) final Long id,
-                              @PathVariable(required = false) final Long userId) {
+    public Film setLikeToFilm(@PathVariable (required = false) final Long id,
+                              @PathVariable (required = false) final Long userId) {
 
         log.info("Request for setting like to film obtained.");
 
@@ -57,8 +57,8 @@ public class FilmController {
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseBody
-    public Film deleteLikeFromFilm(@PathVariable(required = false) final Long id,
-                                   @PathVariable(required = false) final Long userId) {
+    public Film deleteLikeFromFilm(@PathVariable (required = false) final Long id,
+                                   @PathVariable (required = false) final Long userId) {
 
         log.info("Request for deleting like from film obtained.");
 
@@ -67,10 +67,16 @@ public class FilmController {
 
     @GetMapping("/popular")
     @ResponseBody
-    public List<Film> getTopFilms(@RequestParam(required = false) final Integer count) {
+    public List<Film> getTopFilms(@RequestParam (value = "count",
+            defaultValue = "10", required = false) int count) {
         log.info("Request for list of top films getting obtained.");
-
         return filmService.getTopFilms(count);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public Film deleteFilm(@PathVariable ("filmId") long filmId) {
+        log.info("Фильм с id =" + filmId + " удален");
+        return filmService.deleteFilm(filmService.getFilmById(filmId));
     }
 
     @GetMapping("/common")

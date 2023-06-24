@@ -32,6 +32,7 @@ public class UserDbStorage implements UserStorage {
         this.validator = validator;
     }
 
+
     @Override
     public User addUser(User user) {
         log.info("Request to database for user with login '{}' creation obtained.", user.getLogin());
@@ -82,6 +83,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(Long id) {
+
         log.info("Request to database for obtaining user by id: {} obtained.", id);
         User user = new User();
         String sqlQuery = "SELECT * FROM users WHERE users_id = ?";

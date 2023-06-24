@@ -221,25 +221,51 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> popularFilms;
         List<Film> unpopularFilms;
         List<Film> resultList;
-
-        String sqlQuery = "SELECT * FROM film_like GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT " + count;
+        String sqlQuery = "SELECT film_id" +
+                " FROM film_like" +
+                " GROUP BY film_id" +
+                " ORDER BY COUNT(user_id)" +
+                " DESC LIMIT " + count;
         popularFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> getFilmById(rs.getLong("film_id")));
-
         sqlQuery = "SELECT * FROM film";
         unpopularFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> getFilmById(rs.getLong("film_id")));
-
         popularFilms.addAll(unpopularFilms);
-
         if (popularFilms.size() <= count) {
             resultList = popularFilms;
         } else {
             resultList = new ArrayList<>();
-
             for (int i = 0; i < count; i++) {
                 resultList.add(popularFilms.get(i));
             }
         }
         return resultList;
+    }
+
+    private Film makeFilledFilm(Long id, Set<Long> likesToFilm, String name, String description, String releaseDate,
+                                Integer duration, Integer mpaId, String mpaName, Set<Genre> genres) {
+  Film film = new Film();
+        if (id != null) {
+            film.setId(id);
+        }
+        if (!likesToFilm.isEmpty()) {
+            film.setLikesToFilm(likesToFilm);
+        }
+        film.setName(name);
+        if (description != null) {
+            film.setDescription(description);
+        }
+        film.setReleaseDate(LocalDate.parse(releaseDate));
+        film.setDuration(Duration.ofMinutes(duration));
+        if (mpaId != null) {
+            film.setMpa(new Mpa(mpaId, mpaName));
+        }
+        if (genres != null) {
+            film.setGenres(genres);
+        }
+        if (directors != null) {
+            film.setDirectors(directors);
+        }
+        return film;
     }
 
     @Override
@@ -270,9 +296,8 @@ public class FilmDbStorage implements FilmStorage {
         }
         return films;
     }
-
-
-    public List<Film> searchFilmsBy(String query, List<String> by) {
+ 
+  public List<Film> searchFilmsBy(String query, List<String> by) {
         List<Film> films = new ArrayList<>();
         SqlRowSet filmRows;
         String sqlQuery = "SELECT f.film_id, " +
@@ -309,32 +334,6 @@ public class FilmDbStorage implements FilmStorage {
             films.add(getFilmById(id));
         }
         return films;
-    }
-
-    private Film makeFilledFilm(Long id, Set<Long> likesToFilm, String name, String description, String releaseDate, Integer duration, Integer mpaId, String mpaName, Set<Genre> genres, Set<Director> directors) {
-        Film film = new Film();
-        if (id != null) {
-            film.setId(id);
-        }
-        if (!likesToFilm.isEmpty()) {
-            film.setLikesToFilm(likesToFilm);
-        }
-        film.setName(name);
-        if (description != null) {
-            film.setDescription(description);
-        }
-        film.setReleaseDate(LocalDate.parse(releaseDate));
-        film.setDuration(Duration.ofMinutes(duration));
-        if (mpaId != null) {
-            film.setMpa(new Mpa(mpaId, mpaName));
-        }
-        if (genres != null) {
-            film.setGenres(genres);
-        }
-        if (directors != null) {
-            film.setDirectors(directors);
-        }
-        return film;
     }
 
     private String createDataForMultipleInsert(Long number, Set<Genre> genres) {

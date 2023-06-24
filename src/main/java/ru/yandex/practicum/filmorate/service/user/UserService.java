@@ -21,23 +21,42 @@ public class UserService {
     private final FeedStorage feedStorage;
 
     public User addUser(User user) {
+
         return userStorage.addUser(user);
+
     }
 
     public User modifyUser(User user) {
+
         return userStorage.modifyUser(user);
+
     }
 
     public Collection<User> findAll() {
+
         return userStorage.findAllUsers();
+
     }
 
     public User getUserById(Long id) {
+
         if (id == null) {
+
             throw new IncorrectParameterException("'id' parameter equals to null.");
+
         }
 
         return userStorage.getUserById(id);
+    }
+
+    public User deleteUser(User user) {
+
+        if (user == null) {
+
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+
+        }
+        return userStorage.deleteUser(user);
     }
 
     public User addUserToFriends(Long id, Long friendId) {
