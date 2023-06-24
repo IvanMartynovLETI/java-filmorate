@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.constraints.PositiveDuration;
-import ru.yandex.practicum.filmorate.constraints.ReleaseDate;
+import ru.yandex.practicum.filmorate.handler.constraints.PositiveDuration;
+import ru.yandex.practicum.filmorate.handler.constraints.ReleaseDate;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
