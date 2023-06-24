@@ -240,7 +240,9 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getFilmsWithDirector(Long directorId, String sortBy) {
         List<Film> films = new ArrayList<>();
+
         log.info("Request to database for list of films with director obtained.");
+
         SqlRowSet filmRows =
                 jdbcTemplate.queryForRowSet(
                         "SELECT * FROM directors  WHERE director_id=?", directorId);
@@ -257,6 +259,46 @@ public class FilmDbStorage implements FilmStorage {
                     jdbcTemplate.queryForRowSet(
                             "SELECT f.FILM_ID, f.RELEASE_DATE as rd, fd.DIRECTOR_ID FROM film AS f LEFT JOIN film_directors AS fd ON f.film_id=fd.film_id WHERE fd.director_id=? GROUP BY f.FILM_ID ORDER BY RELEASE_DATE", directorId);
         }
+        while (filmRows.next()) {
+            Long id = filmRows.getLong("film_id");
+            films.add(getFilmById(id));
+        }
+        return films;
+    }
+
+
+    public List<Film> searchFilmsBy(String query, List<String> by) {
+        List<Film> films = new ArrayList<>();
+        SqlRowSet filmRows;
+        String sqlQuery = "SELECT f.film_id, " +
+                "d.director_name, " +
+                "COUNT(fl.film_id) AS film_rate " +
+                "FROM film AS f " +
+                "LEFT JOIN film_directors AS fd ON f.film_id=fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id=d.director_id " +
+                "LEFT JOIN film_like AS fl ON f.film_id = fl.film_id ";
+        String querySyntax = "%" + query + "%";
+        if (by.contains("title") && by.contains("director")) {
+            filmRows = jdbcTemplate.queryForRowSet(sqlQuery +
+                    "WHERE LOWER(f.film_name) LIKE LOWER(?) " +
+                    "OR LOWER(d.director_name) LIKE LOWER(?) " +
+                    "GROUP BY f.film_id, fl.film_id " +
+                    "ORDER BY film_rate DESC", querySyntax, querySyntax);
+        } else if (by.contains("director")) {
+            filmRows = jdbcTemplate.queryForRowSet(sqlQuery +
+                    "WHERE LOWER(d.director_name) LIKE LOWER(?) " +
+                    "GROUP BY f.film_id, fl.film_id " +
+                    "ORDER BY film_rate DESC", querySyntax);
+        } else if (by.contains("title")) {
+            filmRows = jdbcTemplate.queryForRowSet(sqlQuery +
+                    "WHERE LOWER(f.film_name) LIKE LOWER(?) " +
+                    "GROUP BY f.film_id, fl.film_id " +
+                    "ORDER BY film_rate DESC", querySyntax);
+        } else {
+            log.info("Invalid search request passed in 'by'");
+            throw new IncorrectParameterException("Invalid search request passed in 'by'");
+        }
+
         while (filmRows.next()) {
             Long id = filmRows.getLong("film_id");
             films.add(getFilmById(id));
