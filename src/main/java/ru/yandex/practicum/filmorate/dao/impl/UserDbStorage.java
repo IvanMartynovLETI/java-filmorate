@@ -9,10 +9,13 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -238,8 +241,9 @@ public class UserDbStorage implements UserStorage {
 
         log.info("Запрос к базе данных по {} пользователя.", id);
 
-        List<Long> recommendationsFilmsId = jdbcTemplate.queryForList(
-                    " SELECT film_id " +
+        // Получаем film_id рекомендованных фильмов
+        List<String> recommendationsFilmsId = jdbcTemplate.queryForList(
+                " SELECT DISTINCT film_id " +
                         " FROM film_like " +
                         " JOIN (SELECT dop_user.user_id," +
                         "       COUNT(dop_user.film_id) AS count_films" +
@@ -256,15 +260,49 @@ public class UserDbStorage implements UserStorage {
                         "                                WHERE user_id = ?))) AS user_top" +
                         " ON film_like.user_id = user_top.user_id" +
                         " WHERE film_like.film_id not IN (SELECT film_id FROM film_like " +
-                        "                                 WHERE user_id = ?)", Long.class, id, id, id, id);
+                        "                                 WHERE user_id = ?)", String.class, id, id, id, id);
 
         if (recommendationsFilmsId.size() == 0) {
             return Optional.of(finalFilms);
         }
 
-        for (Long idFilm : recommendationsFilmsId) {
-            Film film = filmDbStorage.getFilmById(idFilm);
+        SqlRowSet filmsRow = jdbcTemplate.queryForRowSet(
+                " SELECT f.film_id, " +
+                        "       f.film_name, " +
+                        "       f.film_description, " +
+                        "       f.release_date, " +
+                        "       f.duration, " +
+                        "       f.mpa_id, " +
+                        "       m.mpa_name FROM film AS f JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                        " WHERE f.film_id IN (?)", String.join(",", recommendationsFilmsId));
+
+        while (filmsRow.next()) {
+            Film film = new Film();
+            film.setId(filmsRow.getLong("film_id"));
+            film.setLikesToFilm(new HashSet<>(jdbcTemplate.queryForList("SELECT user_id FROM film_like WHERE " +
+                    "film_id = ?", Long.class, id)));
+            film.setName(filmsRow.getString("film_name"));
+            film.setDescription(filmsRow.getString("film_description"));
+            film.setReleaseDate(Objects.requireNonNull(filmsRow.getDate("release_date")).toLocalDate());
+            film.setDuration(Duration.ofMinutes(filmsRow.getInt("duration")));
+
+            film.setMpa(new Mpa(filmsRow.getInt("mpa_id"), filmsRow.getString("mpa_name")));
+
+
+            SqlRowSet genresRow = jdbcTemplate.queryForRowSet(
+                    " SELECT genre.genre_id, " +
+                            "        genre_name " +
+                            " FROM genre " +
+                            " JOIN film_genre ON genre.genre_id = film_genre.genre_id " +
+                            " WHERE film_id IN (?)", String.join(",", recommendationsFilmsId));
+            Set<Genre> genres = new TreeSet<>();
+            while (genresRow.next()) {
+                Genre genre = new Genre(genresRow.getInt("genre_id"), genresRow.getString("genre_name"));
+                genres.add(genre);
+            }
+            film.setGenres(genres);
             finalFilms.add(film);
+
         }
         return Optional.of(finalFilms);
     }
