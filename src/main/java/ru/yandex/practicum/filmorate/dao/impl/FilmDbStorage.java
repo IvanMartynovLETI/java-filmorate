@@ -14,6 +14,8 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
@@ -206,35 +208,25 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getTopFilms(Integer count) {
-        if (count == null) {
-            count = FILMS_COUNT_BY_DEFAULT;
+    public List<Film> getTopFilms(Integer count, Integer genreId, Integer year) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("SELECT * FROM film " +
+                " LEFT JOIN (SELECT film_id, COUNT(*) AS like_count FROM film_like " +
+                " GROUP BY film_id) film_like " +
+                " ON film_like.film_id = film.film_id " +
+                " JOIN mpa AS r ON r.mpa_id = film.mpa_id ");
+        if (genreId > 0) {
+            stringBuilder.append(" WHERE film.film_id IN (SELECT film_genre.film_id FROM film_genre WHERE genre_id = " + genreId + ")");
         }
-        if (count < 0) {
-            throw new IncorrectParameterException("'count' parameter less than zero.");
-        }
-        List<Film> popularFilms;
-        List<Film> unpopularFilms;
-        List<Film> resultList;
-
-        String sqlQuery = "SELECT * FROM film_like GROUP BY film_id ORDER BY COUNT(user_id) DESC LIMIT " + count;
-        popularFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> getFilmById(rs.getLong("film_id")));
-
-        sqlQuery = "SELECT * FROM film";
-        unpopularFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> getFilmById(rs.getLong("film_id")));
-
-        popularFilms.addAll(unpopularFilms);
-
-        if (popularFilms.size() <= count) {
-            resultList = popularFilms;
-        } else {
-            resultList = new ArrayList<>();
-
-            for (int i = 0; i < count; i++) {
-                resultList.add(popularFilms.get(i));
+        if (year > 0) {
+            if(genreId > 0) {
+                stringBuilder.append(" AND EXTRACT(YEAR FROM CAST(film.release_date AS date)) = " + year);
+            } else {
+                stringBuilder.append(" WHERE EXTRACT(YEAR FROM CAST(film.release_date AS date)) = " + year);
             }
         }
-        return resultList;
+        stringBuilder.append(" ORDER BY like_count DESC LIMIT " + count + ";");
+        return jdbcTemplate.query(stringBuilder.toString(), this::mapRowToFilm);
     }
 
     @Override
@@ -303,5 +295,25 @@ public class FilmDbStorage implements FilmStorage {
             counter++;
         }
         return dataStr.toString();
+    }
+
+    private Film mapRowToFilm(ResultSet rs, int rowNum) throws SQLException {
+        Long id = rs.getLong("film_id");
+        String name = rs.getString("film_name");
+        String description = rs.getString("film_description");
+        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
+        int duration = rs.getInt("duration");
+        int mpaId = rs.getInt("mpa_id");
+        String mpaName = rs.getString("mpa_name");
+        Mpa mpa = new Mpa(mpaId, mpaName);
+        Film film = new Film();
+        film.setId(id);
+        film.setName(name);
+        film.setDescription(description);
+        film.setReleaseDate(releaseDate);
+        film.setDuration(Duration.ofMinutes(duration));
+        film.setMpa(mpa);
+
+        return film;
     }
 }
