@@ -88,6 +88,7 @@ public class UserController {
     public void deleteUser(@PathVariable ("userId") long userId) {
         log.info("Пользователь " + userId + " был удален");
         userService.deleteUser(userService.getUserById(userId));
+    }
 
     @GetMapping("/{id}/feed")
     @ResponseBody
