@@ -134,6 +134,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private int compare(Film f0, Film f1) {
         return -(f0.getLikesToFilm().size() - f1.getLikesToFilm().size());
     }
+
     public List<Film> getCommonFilms(Long userId, Long friendId) {
         if (userId == null || friendId == null || userId <= 0 || friendId <= 0) {
             throw new ValidationException("Mistakes");
