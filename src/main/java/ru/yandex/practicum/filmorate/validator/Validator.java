@@ -105,4 +105,13 @@ public class Validator {
 
         return review;
     }
+
+    public void validateUserInDataBaseId(Long id, JdbcTemplate jdbcTemplate) {
+        String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
+        SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
+        if (!userRow.next()) {
+            String userWarning = "User with id: " + id + " doesn't exist.";
+            throw new EntityNotFoundException(userWarning);
+        }
+    }
 }

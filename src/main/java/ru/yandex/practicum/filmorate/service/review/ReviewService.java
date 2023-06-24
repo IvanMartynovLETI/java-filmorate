@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.service.review;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.List;
@@ -14,17 +17,27 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewStorage reviewStorage;
+    private final FeedStorage feedStorage;
 
     public Review addReview(Review review) {
-        return reviewStorage.addReview(review);
+        Review reviewInStorage = reviewStorage.addReview(review);
+        feedStorage.addFeedList(reviewInStorage.getUserId(), reviewInStorage.getReviewId(),
+                EventType.REVIEW, Operation.ADD);
+        return reviewInStorage;
     }
 
     public Review modifyReview(Review review) {
-        return reviewStorage.modifyReview(review);
+        Review reviewInStorage = reviewStorage.modifyReview(review);
+        feedStorage.addFeedList(reviewInStorage.getUserId(), reviewInStorage.getReviewId(),
+                EventType.REVIEW, Operation.UPDATE);
+        return reviewInStorage;
     }
 
     public Review deleteReviewById(Long id) {
-        return reviewStorage.deleteReviewById(id);
+        Review reviewInStorage = reviewStorage.deleteReviewById(id);
+        feedStorage.addFeedList(id, reviewInStorage.getReviewId(),
+                EventType.REVIEW, Operation.REMOVE);
+        return reviewInStorage;
     }
 
     public Review getReviewById(Long id) {
