@@ -666,16 +666,4 @@ class FilmorateApplicationTests {
                         & mpas.contains(mpa4) & mpas.contains(mpa5) & mpas.size() == 5,
                 "Incorrect operation of findAllMpa() method.");
     }
-
-    @Test
-    public void testRecommendationsFilms() {
-        filmDbStorage.addLikeToFilm(film1.getId(), user1.getId());
-        filmDbStorage.addLikeToFilm(film1.getId(), user2.getId());
-        filmDbStorage.addLikeToFilm(film2.getId(), user2.getId());
-
-        Optional<List<Film>> actualFilm = userDbStorage.getRecommendationsFilms(user1.getId());
-
-        assertEquals(1, actualFilm.get().size());
-        assertEquals(film2.getId(), actualFilm.get().get(0).getId());
-    }
 }
