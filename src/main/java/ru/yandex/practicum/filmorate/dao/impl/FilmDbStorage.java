@@ -279,14 +279,15 @@ public class FilmDbStorage implements FilmStorage {
 
         List<Film> popularFilms;
         List<Film> commonFilms;
-        List<Film> resultList;
+        List<Film> resultList = new ArrayList<>();
+        Set<Long> set = new HashSet<>();
 
         String sqlQuery = "SELECT film_id " +
                 "FROM film_like " +
                 "WHERE user_id = " + userId +
                 " OR user_id IN (SELECT user_id " +
-                "FROM user_friends_status " +
-                "WHERE friend_id = " + friendId + ")";
+                "                 FROM user_friends_status " +
+                "                 WHERE friend_id = " + friendId + ")";
         popularFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) ->
                 getFilmById(rs.getLong("film_id")));
 
@@ -306,17 +307,15 @@ public class FilmDbStorage implements FilmStorage {
             return new ArrayList<>();
         }
 
-        popularFilms.addAll(commonFilms);
-
-        Set<Long> commonIds = new HashSet<>();
-        for (Film film : commonFilms) {
-            commonIds.add(film.getId());
-        }
-
-        resultList = new ArrayList<>();
         for (Film film : popularFilms) {
-            if (commonIds.contains(film.getId())) {
-                resultList.add(film);
+            if (!set.contains(film.getId())) {
+                set.add(film.getId());
+                for (Film commonFilm : commonFilms) {
+                    if (film.getId().equals(commonFilm.getId())) {
+                        resultList.add(film);
+                        break;
+                    }
+                }
             }
         }
 
