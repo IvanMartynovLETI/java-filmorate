@@ -31,7 +31,7 @@ public class Film {
     private Duration duration;
 
     private Mpa mpa;
-    private Set<Genre> genres = new TreeSet<>();
+    private Set<Genre> genres = new LinkedHashSet<>();
     private Set<Director> directors = new TreeSet<>();
 
     public void setLikeToFilm(User user) {

@@ -108,7 +108,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getTopFilms(Integer count) {
+    public List<Film> getTopFilms(Integer count, Integer genreId, Integer year) {
 
         if (count == null) {
             count = FILMS_COUNT_BY_DEFAULT;
