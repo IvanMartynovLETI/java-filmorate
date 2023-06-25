@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -139,9 +140,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (userId == null || friendId == null || userId <= 0 || friendId <= 0) {
             throw new ValidationException("Mistakes");
         }
-        return getTopFilms(10).stream()
-                .sorted(this::compare)
-                .collect(Collectors.toList());
-
+        return new ArrayList<>(getTopFilms(10, 0, 0));
     }
 }

@@ -357,7 +357,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setReleaseDate(releaseDate);
         film.setDuration(Duration.ofMinutes(duration));
         film.setMpa(mpa);
-      
+
         String sqlQuery = "SELECT fd.film_id, fd.director_id, d.director_name FROM film_directors AS fd JOIN directors AS d ON fd.director_id=d.director_id WHERE film_id = ?";
         SqlRowSet filmRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
         List<Director> directors = new ArrayList<>();
@@ -366,8 +366,9 @@ public class FilmDbStorage implements FilmStorage {
         }
         Set<Director> directorToBeSorted = new HashSet<>(directors);
         film.setDirectors(directorToBeSorted);
-      
+
         return film;
+    }
 
     @Override
     public List<Film> getCommonFilms(Long userId, Long friendId) {
