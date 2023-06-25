@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS feed (
         operation_name CHARACTER VARYING(10),
         event_type CHARACTER VARYING(10),
         timestamp LONG,
-        user_id INTEGER NOT NULL REFERENCES users (users_id)
+        user_id INTEGER NOT NULL REFERENCES users (users_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS directors (
