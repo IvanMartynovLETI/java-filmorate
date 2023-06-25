@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +11,8 @@ import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.GenreDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.MpaDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.UserDbStorage;
-import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -23,6 +21,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -595,7 +595,7 @@ class FilmorateApplicationTests {
     }
 
     @Test
-    public void shouldThrowIncorrectParameterExceptionWhileAttemptingToGetGenreWithIdOfMinus1() {
+    public void shouldThrowIncorrectParameterExceptionWhileAttemptingToGetGenreWithIdOfMinus1() throws IncorrectParameterException {
         final IncorrectParameterException exception = assertThrows(IncorrectParameterException.class,
                 () -> genreDbStorage.getGenreById(-1));
 

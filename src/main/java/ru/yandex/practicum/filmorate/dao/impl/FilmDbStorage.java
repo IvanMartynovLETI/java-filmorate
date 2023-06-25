@@ -7,10 +7,12 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
@@ -229,35 +231,9 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(stringBuilder.toString(), this::mapRowToFilm);
     }
 
-    @Override
-    public List<Film> getFilmsWithDirector(Long directorId, String sortBy) {
-        List<Film> films = new ArrayList<>();
-        log.info("Request to database for list of films with director obtained.");
-        SqlRowSet filmRows =
-                jdbcTemplate.queryForRowSet(
-                        "SELECT * FROM directors  WHERE director_id=?", directorId);
-        if (!filmRows.next()) {
-            String filmWarning = "Director with id: " + directorId + " doesn't exist.";
-            throw new EntityNotFoundException(filmWarning);
-        }
-        if (sortBy.equals("likes")) {
-            filmRows =
-                    jdbcTemplate.queryForRowSet(
-                            "SELECT f.film_id, fd.director_id, COUNT(fl.film_id) AS cf FROM film AS f LEFT JOIN film_like AS fl ON f.film_id=fl.film_id LEFT JOIN film_directors AS fd ON f.film_id=fd.film_id WHERE fd.director_id=? GROUP BY f.film_id ORDER BY CF DESC", directorId);
-        } else if (sortBy.equals("year")) {
-            filmRows =
-                    jdbcTemplate.queryForRowSet(
-                            "SELECT f.FILM_ID, f.RELEASE_DATE as rd, fd.DIRECTOR_ID FROM film AS f LEFT JOIN film_directors AS fd ON f.film_id=fd.film_id WHERE fd.director_id=? GROUP BY f.FILM_ID ORDER BY RELEASE_DATE", directorId);
-        }
-        while (filmRows.next()) {
-            Long id = filmRows.getLong("film_id");
-            films.add(getFilmById(id));
-        }
-        return films;
-    }
-
-    private Film makeFilledFilm(Long id, Set<Long> likesToFilm, String name, String description, String releaseDate, Integer duration, Integer mpaId, String mpaName, Set<Genre> genres, Set<Director> directors) {
-        Film film = new Film();
+    private Film makeFilledFilm(Long id, Set<Long> likesToFilm, String name, String description, String releaseDate,
+                                Integer duration, Integer mpaId, String mpaName, Set<Genre> genres, Set<Director> directors) {
+  Film film = new Film();
         if (id != null) {
             film.setId(id);
         }
@@ -280,6 +256,74 @@ public class FilmDbStorage implements FilmStorage {
             film.setDirectors(directors);
         }
         return film;
+    }
+
+    @Override
+    public List<Film> getFilmsWithDirector(Long directorId, String sortBy) {
+        List<Film> films = new ArrayList<>();
+
+        log.info("Request to database for list of films with director obtained.");
+
+        SqlRowSet filmRows =
+                jdbcTemplate.queryForRowSet(
+                        "SELECT * FROM directors  WHERE director_id=?", directorId);
+        if (!filmRows.next()) {
+            String filmWarning = "Director with id: " + directorId + " doesn't exist.";
+            throw new EntityNotFoundException(filmWarning);
+        }
+        if (sortBy.equals("likes")) {
+            filmRows =
+                    jdbcTemplate.queryForRowSet(
+                            "SELECT f.film_id, fd.director_id, COUNT(fl.film_id) AS cf FROM film AS f LEFT JOIN film_like AS fl ON f.film_id=fl.film_id LEFT JOIN film_directors AS fd ON f.film_id=fd.film_id WHERE fd.director_id=? GROUP BY f.film_id ORDER BY CF DESC", directorId);
+        } else if (sortBy.equals("year")) {
+            filmRows =
+                    jdbcTemplate.queryForRowSet(
+                            "SELECT f.FILM_ID, f.RELEASE_DATE as rd, fd.DIRECTOR_ID FROM film AS f LEFT JOIN film_directors AS fd ON f.film_id=fd.film_id WHERE fd.director_id=? GROUP BY f.FILM_ID ORDER BY RELEASE_DATE", directorId);
+        }
+        while (filmRows.next()) {
+            Long id = filmRows.getLong("film_id");
+            films.add(getFilmById(id));
+        }
+        return films;
+    }
+ 
+  public List<Film> searchFilmsBy(String query, List<String> by) {
+        List<Film> films = new ArrayList<>();
+        SqlRowSet filmRows;
+        String sqlQuery = "SELECT f.film_id, " +
+                "d.director_name, " +
+                "COUNT(fl.film_id) AS film_rate " +
+                "FROM film AS f " +
+                "LEFT JOIN film_directors AS fd ON f.film_id=fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id=d.director_id " +
+                "LEFT JOIN film_like AS fl ON f.film_id = fl.film_id ";
+        String querySyntax = "%" + query + "%";
+        if (by.contains("title") && by.contains("director")) {
+            filmRows = jdbcTemplate.queryForRowSet(sqlQuery +
+                    "WHERE LOWER(f.film_name) LIKE LOWER(?) " +
+                    "OR LOWER(d.director_name) LIKE LOWER(?) " +
+                    "GROUP BY f.film_id, fl.film_id " +
+                    "ORDER BY film_rate DESC", querySyntax, querySyntax);
+        } else if (by.contains("director")) {
+            filmRows = jdbcTemplate.queryForRowSet(sqlQuery +
+                    "WHERE LOWER(d.director_name) LIKE LOWER(?) " +
+                    "GROUP BY f.film_id, fl.film_id " +
+                    "ORDER BY film_rate DESC", querySyntax);
+        } else if (by.contains("title")) {
+            filmRows = jdbcTemplate.queryForRowSet(sqlQuery +
+                    "WHERE LOWER(f.film_name) LIKE LOWER(?) " +
+                    "GROUP BY f.film_id, fl.film_id " +
+                    "ORDER BY film_rate DESC", querySyntax);
+        } else {
+            log.info("Invalid search request passed in 'by'");
+            throw new IncorrectParameterException("Invalid search request passed in 'by'");
+        }
+
+        while (filmRows.next()) {
+            Long id = filmRows.getLong("film_id");
+            films.add(getFilmById(id));
+        }
+        return films;
     }
 
     private String createDataForMultipleInsert(Long number, Set<Genre> genres) {
@@ -313,7 +357,66 @@ public class FilmDbStorage implements FilmStorage {
         film.setReleaseDate(releaseDate);
         film.setDuration(Duration.ofMinutes(duration));
         film.setMpa(mpa);
-
+      
+        String sqlQuery = "SELECT fd.film_id, fd.director_id, d.director_name FROM film_directors AS fd JOIN directors AS d ON fd.director_id=d.director_id WHERE film_id = ?";
+        SqlRowSet filmRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
+        List<Director> directors = new ArrayList<>();
+        if (filmRow.next()) {
+            directors = jdbcTemplate.query(sqlQuery, (rs1, rowNum1) -> new Director(rs1.getInt("director_id"), rs1.getString("director_name")), id);
+        }
+        Set<Director> directorToBeSorted = new HashSet<>(directors);
+        film.setDirectors(directorToBeSorted);
+      
         return film;
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        if (userId == null || userId <= 0 || friendId == null || friendId <= 0) {
+            throw new IncorrectParameterException("id' parameter equals to null.");
+        }
+
+        List<Film> popularFilms;
+        List<Film> commonFilms;
+        List<Film> resultList = new ArrayList<>();
+        Set<Long> set = new HashSet<>();
+
+        String sqlQuery = "SELECT film_id " +
+                "FROM film_like " +
+                "WHERE user_id = " + userId +
+                " OR user_id IN (SELECT user_id " +
+                "                 FROM user_friends_status " +
+                "                 WHERE friend_id = " + friendId + ")";
+        popularFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) ->
+                getFilmById(rs.getLong("film_id")));
+
+        if (popularFilms.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        sqlQuery = "SELECT film_id " +
+                "FROM film_like " +
+                "GROUP BY film_id " +
+                "ORDER BY COUNT(user_id) DESC " +
+                "LIMIT 10";
+        commonFilms = jdbcTemplate.query(sqlQuery, (rs, rowNum) ->
+                getFilmById(rs.getLong("film_id")));
+
+        if (commonFilms.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        for (Film film : popularFilms) {
+            if (!set.contains(film.getId())) {
+                set.add(film.getId());
+                for (Film commonFilm : commonFilms) {
+                    if (film.getId().equals(commonFilm.getId())) {
+                        resultList.add(film);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return resultList;
     }
 }
