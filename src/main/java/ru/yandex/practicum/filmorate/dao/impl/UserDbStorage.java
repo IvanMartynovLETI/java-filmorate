@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
     private final Validator validator;
-    private final FilmDbStorage filmDbStorage;
 
     @Override
     public User addUser(User user) {
@@ -154,7 +153,8 @@ public class UserDbStorage implements UserStorage {
             throw new IncorrectParameterException("'friendId' parameter equals to null.");
         }
 
-        log.info("Request for database: user with id: {} wants to delete user with id: {} from friends.", id, friendId);
+        log.info("Request for database: user with id: {} wants to delete user with id: {} from friends.", id,
+                friendId);
 
         jdbcTemplate.update("DELETE FROM user_friends_status WHERE user_id = ? AND friend_id = ? AND " +
                 "status_of_friendship = ?", id, friendId, "Confirmed");
@@ -297,7 +297,8 @@ public class UserDbStorage implements UserStorage {
                             " WHERE film_id IN (?)", String.join(",", recommendationsFilmsId));
             Set<Genre> genres = new TreeSet<>();
             while (genresRow.next()) {
-                Genre genre = new Genre(genresRow.getInt("genre_id"), genresRow.getString("genre_name"));
+                Genre genre = new Genre(genresRow.getInt("genre_id"), genresRow
+                        .getString("genre_name"));
                 genres.add(genre);
             }
             film.setGenres(genres);

@@ -47,8 +47,8 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     @ResponseBody
-    public Film setLikeToFilm(@PathVariable (required = false) final Long id,
-                              @PathVariable (required = false) final Long userId) {
+    public Film setLikeToFilm(@PathVariable(required = false) final Long id,
+                              @PathVariable(required = false) final Long userId) {
 
         log.info("Request for setting like to film obtained.");
 
@@ -57,8 +57,8 @@ public class FilmController {
 
     @DeleteMapping("/{id}/like/{userId}")
     @ResponseBody
-    public Film deleteLikeFromFilm(@PathVariable (required = false) final Long id,
-                                   @PathVariable (required = false) final Long userId) {
+    public Film deleteLikeFromFilm(@PathVariable(required = false) final Long id,
+                                   @PathVariable(required = false) final Long userId) {
 
         log.info("Request for deleting like from film obtained.");
 
@@ -78,7 +78,7 @@ public class FilmController {
 
 
     @DeleteMapping("/{filmId}")
-    public Film deleteFilm(@PathVariable ("filmId") long filmId) {
+    public Film deleteFilm(@PathVariable("filmId") long filmId) {
         log.info("Фильм с id =" + filmId + " удален");
         return filmService.deleteFilm(filmService.getFilmById(filmId));
     }

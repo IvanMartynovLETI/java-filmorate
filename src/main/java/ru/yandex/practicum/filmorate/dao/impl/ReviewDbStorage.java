@@ -6,14 +6,10 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
-import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -77,7 +73,8 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Review deleteReviewById(Long id) {
         log.info("Request to database for review with id '{}' deletion obtained.", id);
-        Review checkedReview = validator.validateReviewInDataBase(getReviewById(id), jdbcTemplate, false);
+        Review checkedReview = validator.validateReviewInDataBase(getReviewById(id), jdbcTemplate,
+                false);
 
         jdbcTemplate.update("DELETE FROM reviews WHERE reviews_id = ?", checkedReview.getReviewId());
 

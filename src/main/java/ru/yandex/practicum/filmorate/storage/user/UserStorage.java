@@ -26,5 +26,5 @@ public interface UserStorage {
 
     Collection<User> getFriendsOfUser(Long id);
 
-    public Optional<List<Film>> getRecommendationsFilms(Long id);
+    Optional<List<Film>> getRecommendationsFilms(Long id);
 }

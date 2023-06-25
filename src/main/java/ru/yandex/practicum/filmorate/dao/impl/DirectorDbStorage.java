@@ -31,12 +31,12 @@ public class DirectorDbStorage implements DirectorStorage {
 
         GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
         String sql = "INSERT INTO directors (director_name) values(?)";
-        int rowsAffected = jdbcTemplate.update(connection -> {
+        jdbcTemplate.update(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, director.getName());
             return preparedStatement;
         }, generatedKeyHolder);
-        int id = Objects.requireNonNull(generatedKeyHolder.getKey()).intValue();
+        Long id = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
         director.setId(id);
         return director;
     }
@@ -87,7 +87,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
         log.info("Request to database for all directors collecting obtained.");
 
-        Set<Director> directors = new HashSet();
+        Set<Director> directors = new HashSet<>();
         String sqlQuery = "SELECT * FROM directors";
 
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlQuery);
