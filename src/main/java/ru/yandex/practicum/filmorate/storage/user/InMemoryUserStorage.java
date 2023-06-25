@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
@@ -159,5 +160,10 @@ public class InMemoryUserStorage implements UserStorage {
                 .filter(users::containsKey)
                 .map(users::get)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<List<Film>> getRecommendationsFilms(Long id) {
+        return Optional.empty();
     }
 }

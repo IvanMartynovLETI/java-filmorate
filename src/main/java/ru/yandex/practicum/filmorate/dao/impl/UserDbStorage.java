@@ -1,20 +1,21 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Operation;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.validator.Validator;
 
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -23,15 +24,11 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @Primary
+@RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
     private final Validator validator;
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate, Validator validator) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.validator = validator;
-    }
-
+    private final FilmDbStorage filmDbStorage;
 
     @Override
     public User addUser(User user) {
@@ -83,7 +80,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(Long id) {
-
         log.info("Request to database for obtaining user by id: {} obtained.", id);
         User user = new User();
         String sqlQuery = "SELECT * FROM users WHERE users_id = ?";
@@ -145,6 +141,7 @@ public class UserDbStorage implements UserStorage {
                 "VALUES(?, ?, ?)", id, friendId, "Confirmed");
         jdbcTemplate.update("INSERT INTO user_friends_status(user_id, friend_id, status_of_friendship) " +
                 "VALUES(?, ?, ?)", friendId, id, "Unconfirmed");
+
         return getUserById(id);
     }
 
@@ -163,6 +160,7 @@ public class UserDbStorage implements UserStorage {
                 "status_of_friendship = ?", id, friendId, "Confirmed");
         jdbcTemplate.update("DELETE FROM user_friends_status WHERE user_id = ? AND friend_id = ? AND " +
                 "status_of_friendship = ?", friendId, id, "Unconfirmed");
+
         return getUserById(id);
     }
 
@@ -230,5 +228,82 @@ public class UserDbStorage implements UserStorage {
         user.setBirthday(birthday);
 
         return user;
+    }
+
+    @Override
+    public Optional<List<Film>> getRecommendationsFilms(Long id) {
+
+        if (id == null) {
+            throw new IncorrectParameterException("'id' parameter equals to null.");
+        }
+
+        List<Film> finalFilms = new ArrayList<>();
+
+        log.info("Запрос к базе данных по {} пользователя.", id);
+
+        // Получаем film_id рекомендованных фильмов
+        List<String> recommendationsFilmsId = jdbcTemplate.queryForList(
+                " SELECT DISTINCT film_id " +
+                        " FROM film_like " +
+                        " JOIN (SELECT dop_user.user_id," +
+                        "       COUNT(dop_user.film_id) AS count_films" +
+                        "       FROM (SELECT * FROM film_like" +
+                        "             WHERE user_id != ?) AS dop_user" +
+                        "       JOIN (SELECT * FROM film_like" +
+                        "             WHERE user_id = ?) AS base_user" +
+                        "       ON base_user.film_id = dop_user.film_id" +
+                        "       GROUP BY dop_user.user_id" +
+                        "       ORDER BY count_films DESC" +
+                        "       LIMIT (SELECT CEILING(COUNT(user_id) * 0.1)" +
+                        "              FROM film_like" +
+                        "              WHERE film_id IN (SELECT film_id FROM film_like " +
+                        "                                WHERE user_id = ?))) AS user_top" +
+                        " ON film_like.user_id = user_top.user_id" +
+                        " WHERE film_like.film_id not IN (SELECT film_id FROM film_like " +
+                        "                                 WHERE user_id = ?)", String.class, id, id, id, id);
+
+        if (recommendationsFilmsId.size() == 0) {
+            return Optional.of(finalFilms);
+        }
+
+        SqlRowSet filmsRow = jdbcTemplate.queryForRowSet(
+                " SELECT f.film_id, " +
+                        "       f.film_name, " +
+                        "       f.film_description, " +
+                        "       f.release_date, " +
+                        "       f.duration, " +
+                        "       f.mpa_id, " +
+                        "       m.mpa_name FROM film AS f JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                        " WHERE f.film_id IN (?)", String.join(",", recommendationsFilmsId));
+
+        while (filmsRow.next()) {
+            Film film = new Film();
+            film.setId(filmsRow.getLong("film_id"));
+            film.setLikesToFilm(new HashSet<>(jdbcTemplate.queryForList("SELECT user_id FROM film_like WHERE " +
+                    "film_id = ?", Long.class, id)));
+            film.setName(filmsRow.getString("film_name"));
+            film.setDescription(filmsRow.getString("film_description"));
+            film.setReleaseDate(Objects.requireNonNull(filmsRow.getDate("release_date")).toLocalDate());
+            film.setDuration(Duration.ofMinutes(filmsRow.getInt("duration")));
+
+            film.setMpa(new Mpa(filmsRow.getInt("mpa_id"), filmsRow.getString("mpa_name")));
+
+
+            SqlRowSet genresRow = jdbcTemplate.queryForRowSet(
+                    " SELECT genre.genre_id, " +
+                            "        genre_name " +
+                            " FROM genre " +
+                            " JOIN film_genre ON genre.genre_id = film_genre.genre_id " +
+                            " WHERE film_id IN (?)", String.join(",", recommendationsFilmsId));
+            Set<Genre> genres = new TreeSet<>();
+            while (genresRow.next()) {
+                Genre genre = new Genre(genresRow.getInt("genre_id"), genresRow.getString("genre_name"));
+                genres.add(genre);
+            }
+            film.setGenres(genres);
+            finalFilms.add(film);
+
+        }
+        return Optional.of(finalFilms);
     }
 }
