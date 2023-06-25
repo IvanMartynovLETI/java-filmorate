@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.impl.GenreDbStorage;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Operation;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final GenreDbStorage genreDbStorage;
     private final FeedStorage feedStorage;
 
     public Film addFilm(Film film) {
@@ -51,8 +53,10 @@ public class FilmService {
         return film;
     }
 
-    public List<Film> getTopFilms(Integer count) {
-        return filmStorage.getTopFilms(count);
+    public List<Film> getTopFilms(Integer count, Integer genreId, Integer year) {
+        List<Film> result = filmStorage.getTopFilms(count, genreId, year);
+        genreDbStorage.findGenres(result);
+        return result;
     }
 
     public List<Film> getCommonFilms(Long userId, Long friendId) {
