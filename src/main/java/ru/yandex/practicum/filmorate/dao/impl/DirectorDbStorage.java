@@ -38,16 +38,16 @@ public class DirectorDbStorage implements DirectorStorage {
         }, generatedKeyHolder);
         Long id = Objects.requireNonNull(generatedKeyHolder.getKey()).longValue();
         director.setId(id);
+
         return director;
     }
 
     @Override
     public Director getDirectorById(Long id) {
-        Director director;
         log.info("Request to database for getting director by id of '{}' obtained.", id);
 
+        Director director;
         String sqlQuery = "SELECT * FROM directors WHERE director_id = ?";
-
         SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
         if (!userRow.next()) {
             String userWarning = "Director with id: " + id + " doesn't exist.";
@@ -56,16 +56,16 @@ public class DirectorDbStorage implements DirectorStorage {
             String name = userRow.getString("director_name");
             director = new Director(id, name);
         }
+
         return director;
     }
 
     @Override
     public Director modifyDirector(Director director) {
         log.info("Request to database for director with id '{}' update obtained.", director.getId());
+
         getDirectorById(director.getId());
-
         String sqlQuery = "UPDATE directors SET DIRECTOR_NAME = ? WHERE director_id = ?";
-
         jdbcTemplate.update(sqlQuery,
                 director.getName(),
                 director.getId());
@@ -76,27 +76,27 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Director deleteDirector(long id) {
         log.info("Request to database for director with id '{}' deletion obtained.", id);
+
         Director director = getDirectorById(id);
         jdbcTemplate.update("DELETE FROM directors WHERE director_id = ?", id);
+
         return director;
     }
 
     @Override
 
     public Set<Director> findAllDirectors() {
-
         log.info("Request to database for all directors collecting obtained.");
 
         Set<Director> directors = new HashSet<>();
         String sqlQuery = "SELECT * FROM directors";
-
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlQuery);
-
         while (sqlRowSet.next()) {
             long id = sqlRowSet.getLong("director_id");
             String name = sqlRowSet.getString("director_name");
             directors.add(new Director(id, name));
         }
+
         return directors;
     }
 }

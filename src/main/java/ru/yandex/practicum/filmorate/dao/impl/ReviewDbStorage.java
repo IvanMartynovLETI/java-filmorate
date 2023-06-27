@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -17,19 +18,16 @@ import java.util.Optional;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
     private final Validator validator;
     private static final int REVIEWS_COUNT_BY_DEFAULT = 10;
 
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate, Validator validator) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.validator = validator;
-    }
-
     @Override
     public Review addReview(Review review) {
-        log.info("Request to database for film with id {} review creation obtained.", review.getFilmId());
+        log.info("Request to database for review with id: '{}'  creation obtained.", review.getFilmId());
+
         if (review.getUserId() <= 0) {
             String userWarning = "User with id: " + review.getUserId() + " doesn't exist.";
             throw new EntityNotFoundException(userWarning);
@@ -55,12 +53,14 @@ public class ReviewDbStorage implements ReviewStorage {
 
         jdbcTemplate.update(sqlQuery, checkedReview.getContent(), checkedReview.getIsPositive(),
                 checkedReview.getUserId(), checkedReview.getFilmId());
+
         return getReviewById(checkedReview.getReviewId());
     }
 
     @Override
     public Review modifyReview(Review review) {
-        log.info("Request to database for review with id '{}' update obtained.", review.getReviewId());
+        log.info("Request to database for review with id: '{}' update obtained.", review.getReviewId());
+
         Review checkedReview = validator.validateReviewInDataBase(review, jdbcTemplate, false);
         String sqlQuery = "UPDATE reviews SET content = ?, is_positive = ? WHERE reviews_id = ?";
 
@@ -72,7 +72,8 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review deleteReviewById(Long id) {
-        log.info("Request to database for review with id '{}' deletion obtained.", id);
+        log.info("Request to database for review with id: '{}' deletion obtained.", id);
+
         Review checkedReview = validator.validateReviewInDataBase(getReviewById(id), jdbcTemplate,
                 false);
 
@@ -83,7 +84,8 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review getReviewById(Long id) {
-        log.info("Request to database for obtaining review by id: {} obtained.", id);
+        log.info("Request to database for obtaining review by id: '{}' obtained.", id);
+
         Review review = new Review();
         String sqlQuery = "SELECT * FROM reviews WHERE reviews_id = ?";
 
@@ -107,6 +109,7 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Optional<List<Review>> getReviews(Long filmId, Integer count) {
         log.info("Request to database for getting review's collection obtained.");
+
         String sqlQuery;
         List<Review> reviews;
         if (filmId == null) {
@@ -148,11 +151,15 @@ public class ReviewDbStorage implements ReviewStorage {
                 }
             }
         }
+
         return Optional.of(Objects.requireNonNullElseGet(reviews, ArrayList::new));
     }
 
     @Override
     public Review setLikeToReview(Long reviewId, Long userId) {
+        log.info("Request to database for setting like to review with id: '{}' from user with id: '{}' obtained.",
+                reviewId, userId);
+
         if (reviewId == null) {
             throw new IncorrectParameterException("'reviewId' parameter equals to null.");
         }
@@ -182,6 +189,9 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review setDislikeToReview(Long reviewId, Long userId) {
+        log.info("Request to database for setting dislike to review with id: '{}' from user with id: '{}' obtained.",
+                reviewId, userId);
+
         if (reviewId == null) {
             throw new IncorrectParameterException("'reviewId' parameter equals to null.");
         }
@@ -211,6 +221,9 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review deleteLikeFromReview(Long reviewId, Long userId) {
+        log.info("Request to database for deleting like from review with id: '{}' from user with id: '{}' obtained.",
+                reviewId, userId);
+
         if (reviewId == null) {
             throw new IncorrectParameterException("'reviewId' parameter equals to null.");
         }
@@ -240,6 +253,9 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review deleteDislikeFromReview(Long reviewId, Long userId) {
+        log.info("Request to database for deleting dislike from review with id: '{}' from user with id: '{}' obtained.",
+                reviewId, userId);
+
         if (reviewId == null) {
             throw new IncorrectParameterException("'reviewId' parameter equals to null.");
         }

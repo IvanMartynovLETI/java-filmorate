@@ -24,3 +24,4 @@ public interface ReviewStorage {
 
     Review deleteDislikeFromReview(Long reviewId, Long userId);
 }
+

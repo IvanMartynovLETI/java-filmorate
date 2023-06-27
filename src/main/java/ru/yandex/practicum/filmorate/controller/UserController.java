@@ -23,6 +23,7 @@ public class UserController {
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info("Request for user adding obtained.");
+
         return userService.addUser(user);
     }
 
@@ -36,11 +37,11 @@ public class UserController {
     @GetMapping
     public Collection<User> findAll() {
         log.info("Request for receiving of all users obtained.");
+
         return userService.findAll();
     }
 
     @GetMapping("/{id}")
-    @ResponseBody
     public User getUserById(@PathVariable(required = false) final Long id) {
         log.info("Request for getting user by id obtained.");
 
@@ -48,7 +49,6 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    @ResponseBody
     public User addUserToFriend(@PathVariable(required = false) final Long id,
                                 @PathVariable(required = false) final Long friendId) {
         log.info("Request for adding user to friends obtained.");
@@ -58,7 +58,6 @@ public class UserController {
 
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    @ResponseBody
     public User deleteUserFromFriends(@PathVariable(required = false) final Long id,
                                       @PathVariable(required = false) final Long friendId) {
         log.info("Request for deleting user from friends obtained.");
@@ -67,7 +66,6 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    @ResponseBody
     public Collection<User> getFriendsOfUser(@PathVariable(required = false) final Long id) {
         log.info("Request for getting friends of user obtained.");
 
@@ -75,7 +73,6 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    @ResponseBody
     public Optional<List<User>> getCommonFriends(@PathVariable(required = false) final Long id,
                                                  @PathVariable(required = false) final Long otherId) {
         log.info("Request for getting common friends obtained.");
@@ -84,23 +81,20 @@ public class UserController {
     }
 
     @DeleteMapping("{userId}")
-    @ResponseBody
     public void deleteUser(@PathVariable("userId") long userId) {
         log.info("Пользователь " + userId + " был удален");
+
         userService.deleteUser(userService.getUserById(userId));
     }
 
     @GetMapping("/{id}/feed")
-    @ResponseBody
     public Collection<Feed> getFeed(@PathVariable(required = false) Long id) {
-
         log.info("Request for getting feed obtained.");
 
         return userService.getFeed(id);
     }
 
     @GetMapping("/{id}/recommendations")
-    @ResponseBody
     public Optional<List<Film>> getRecommendationsFilms(@PathVariable Long id) {
         log.info("Запрос на получение списка рекомендаций по фильмам для целевого пользователя.");
 

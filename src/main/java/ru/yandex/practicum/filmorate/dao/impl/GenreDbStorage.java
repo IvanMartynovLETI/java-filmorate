@@ -23,7 +23,8 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Genre getGenreById(int id) {
-        log.info("Request to database for obtaining genre by id: {} obtained.", id);
+        log.info("Request to database for obtaining genre by id: '{}' obtained.", id);
+
         if (id <= 0) {
             throw new IncorrectParameterException("id of genre is equal to or less than zero.");
         }
@@ -39,7 +40,8 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public Collection<Genre> findAllGenres() {
-        log.info("Request to database for getting genre's collection obtained. Now {} mpa present.",
+        log.info("Request to database for getting genre's collection obtained. Now '{}' mpa present.",
+
                 jdbcTemplate.queryForRowSet("SELECT COUNT(genre_id) from genre"));
         String sqlQuery = "SELECT * FROM genre";
 
@@ -49,6 +51,8 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public void findGenres(List<Film> filmList) {
+        log.info("Request to database for find genres.");
+
         Map<Long, Set<Genre>> map = new HashMap<>();
         StringJoiner stringJoiner = new StringJoiner(", ");
         for (Film film : filmList) {

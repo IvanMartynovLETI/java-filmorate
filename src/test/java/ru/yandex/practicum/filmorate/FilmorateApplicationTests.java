@@ -347,7 +347,6 @@ class FilmorateApplicationTests {
 
         filmDbStorage.addFilm(film3);
         Film film3Restored = filmDbStorage.getFilmById(film3.getId());
-
         assertEquals(film3.getGenres(), film3Restored.getGenres(), "Incorrect operation of addFilm() method.");
     }
 

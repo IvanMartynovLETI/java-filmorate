@@ -14,7 +14,6 @@ import java.util.Collection;
 @Slf4j
 @Component
 public class MpaDbStorage implements MpaStorage {
-
     private final JdbcTemplate jdbcTemplate;
 
     public MpaDbStorage(JdbcTemplate jdbcTemplate) {
@@ -23,7 +22,8 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public Mpa getMpaById(int id) {
-        log.info("Request to database for obtaining mpa by id: {} obtained.", id);
+        log.info("Request to database for obtaining mpa by id: '{}' obtained.", id);
+
         if (id <= 0) {
             throw new IncorrectParameterException("id of MPA is equal to or less than zero.");
         }
@@ -40,7 +40,7 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public Collection<Mpa> findAllMpa() {
-        log.info("Request to database for getting mpa's collection obtained. Now {} mpa present.",
+        log.info("Request to database for getting mpa's collection obtained. Now '{}' mpa present.",
                 jdbcTemplate.queryForRowSet("SELECT COUNT(mpa_id) from mpa"));
 
         String sqlQuery = "SELECT * FROM mpa";

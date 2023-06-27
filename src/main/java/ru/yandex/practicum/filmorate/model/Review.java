@@ -24,3 +24,4 @@ public class Review {
 
     private Long useful = 0L;
 }
+

@@ -23,7 +23,6 @@ public class MpaController {
     }
 
     @GetMapping("/{id}")
-    @ResponseBody
     public Mpa getMpaById(@PathVariable final Integer id) {
         log.info("Request for getting mpa by id obtained.");
 

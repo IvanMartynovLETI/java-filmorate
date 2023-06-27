@@ -32,7 +32,6 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseBody
     public Review deleteReviewById(@PathVariable final Long id) {
         log.info("Request for review deletion obtained.");
 
@@ -40,14 +39,13 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}")
-    @ResponseBody
     public Review getReviewById(@PathVariable final Long id) {
         log.info("Request for getting review by id obtained.");
 
         return reviewService.getReviewById(id);
     }
 
-    @GetMapping()
+    @GetMapping
     public Optional<List<Review>> getReviews(@RequestParam(required = false) Long filmId,
                                              @RequestParam(required = false) Integer count) {
         log.info("Request for list of reviews  obtained.");
@@ -56,7 +54,6 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    @ResponseBody
     public Review setLikeToReview(@PathVariable(required = false) final Long id,
                                   @PathVariable(required = false) final Long userId) {
         log.info("Request for setting like to review obtained.");
@@ -65,7 +62,6 @@ public class ReviewController {
     }
 
     @PutMapping("/{id}/dislike/{userId}")
-    @ResponseBody
     public Review setDisLikeToReview(@PathVariable(required = false) final Long id,
                                      @PathVariable(required = false) final Long userId) {
         log.info("Request for setting dislike to review obtained.");
@@ -74,7 +70,6 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    @ResponseBody
     public Review deleteLikeFromReview(@PathVariable(required = false) final Long id,
                                        @PathVariable(required = false) final Long userId) {
         log.info("Request for deletion like from review obtained.");
@@ -83,7 +78,6 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
-    @ResponseBody
     public Review deleteDislikeFromReview(@PathVariable(required = false) final Long id,
                                           @PathVariable(required = false) final Long userId) {
         log.info("Request for deletion dislike from review obtained.");

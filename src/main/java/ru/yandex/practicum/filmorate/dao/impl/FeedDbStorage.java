@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -18,6 +19,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class FeedDbStorage implements FeedStorage {
@@ -26,6 +28,8 @@ public class FeedDbStorage implements FeedStorage {
 
     @Override
     public void addFeedList(Long userId, Long entityId, EventType type, Operation operation) {
+        log.info("Request to database for adding feed list.");
+
         String sqlQuery = "INSERT INTO feed (entity_id, operation_name, event_type, user_id, timestamp)" +
                 "VALUES (?, ?, ?, ?, ?) ";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -43,7 +47,10 @@ public class FeedDbStorage implements FeedStorage {
 
     @Override
     public List<Feed> getFeedList(Long id) {
+        log.info("Request to database for getting feed list of user with id: '{}'.", id);
+
         validator.validateUserInDataBaseId(id, jdbcTemplate);
+
         return jdbcTemplate.query("SELECT * FROM feed WHERE user_id = ?", this::feedMapper, id);
     }
 
@@ -55,6 +62,7 @@ public class FeedDbStorage implements FeedStorage {
         feed.setEventType(EventType.valueOf(resultSet.getString("event_type")));
         feed.setUserId(resultSet.getLong("user_id"));
         feed.setTimestamp(resultSet.getLong("timestamp"));
+
         return feed;
     }
 }

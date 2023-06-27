@@ -13,13 +13,13 @@ import java.util.*;
 @RestController
 @RequestMapping("/films")
 @AllArgsConstructor
-
 public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("Request for film adding obtained.");
+
         return filmService.addFilm(film);
     }
 
@@ -38,7 +38,6 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    @ResponseBody
     public Film getFilmById(@PathVariable final Long id) {
         log.info("Request for getting film by id obtained.");
 
@@ -46,7 +45,6 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    @ResponseBody
     public Film setLikeToFilm(@PathVariable(required = false) final Long id,
                               @PathVariable(required = false) final Long userId) {
 
@@ -56,7 +54,6 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    @ResponseBody
     public Film deleteLikeFromFilm(@PathVariable(required = false) final Long id,
                                    @PathVariable(required = false) final Long userId) {
 
@@ -66,8 +63,6 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    @ResponseBody
-
     public List<Film> getTopFilms(@RequestParam(defaultValue = "10") Integer count,
                                   @RequestParam(defaultValue = "0") Integer genreId,
                                   @RequestParam(defaultValue = "0") Integer year) {
@@ -76,15 +71,14 @@ public class FilmController {
         return filmService.getTopFilms(count, genreId, year);
     }
 
-
     @DeleteMapping("/{filmId}")
     public Film deleteFilm(@PathVariable("filmId") long filmId) {
         log.info("Фильм с id =" + filmId + " удален");
+
         return filmService.deleteFilm(filmService.getFilmById(filmId));
     }
 
     @GetMapping("/common")
-    @ResponseBody
     public List<Film> getCommonFilms(@RequestParam(required = false) final Long userId, final Long friendId) {
         log.info("Request for list of top films getting obtained.");
 
@@ -102,7 +96,6 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    @ResponseBody
     public List<Film> searchFilms(@RequestParam String query, @RequestParam List<String> by) {
         log.info("Request to search for films getting obtained.");
 

@@ -32,6 +32,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User addUser(User user) {
         log.info("Request to database for user with login '{}' creation obtained.", user.getLogin());
+
         User checkedPeople = validator.validateUserInDataBase(user, jdbcTemplate, true);
         String sqlQuery = "INSERT INTO users(users_id, name, email, login, birthday) VALUES(?, ?, ?, ?, ?)";
 
@@ -48,6 +49,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User modifyUser(User user) {
         log.info("Request to database for user with id '{}' update obtained.", user.getId());
+
         User checkedPeople = validator.validateUserInDataBase(user, jdbcTemplate, false);
         String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
         jdbcTemplate.queryForRowSet(sqlQuery, checkedPeople.getId());
@@ -69,6 +71,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User deleteUser(User user) {
         log.info("Request to database for user with id '{}' deletion obtained.", user.getId());
+
         User checkedPeople = validator.validateUserInDataBase(user, jdbcTemplate, false);
         String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
         jdbcTemplate.queryForRowSet(sqlQuery, checkedPeople.getId());
@@ -79,7 +82,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getUserById(Long id) {
-        log.info("Request to database for obtaining user by id: {} obtained.", id);
+        log.info("Request to database for obtaining user by id: '{}' obtained.", id);
+
         User user = new User();
         String sqlQuery = "SELECT * FROM users WHERE users_id = ?";
         SqlRowSet userRow = jdbcTemplate.queryForRowSet(sqlQuery, id);
@@ -134,7 +138,7 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "SELECT name FROM users WHERE users_id = ?";
         jdbcTemplate.queryForRowSet(sqlQuery, id);
 
-        log.info("User with id: {} wants to add user with id: {} as friend.", id, friendId);
+        log.info("User with id: '{}' wants to add user with id: '{}' as friend.", id, friendId);
 
         jdbcTemplate.update("INSERT INTO user_friends_status(user_id, friend_id, status_of_friendship)" +
                 "VALUES(?, ?, ?)", id, friendId, "Confirmed");
@@ -153,7 +157,7 @@ public class UserDbStorage implements UserStorage {
             throw new IncorrectParameterException("'friendId' parameter equals to null.");
         }
 
-        log.info("Request for database: user with id: {} wants to delete user with id: {} from friends.", id,
+        log.info("Request for database: user with id: '{}' wants to delete user with id: '{}' from friends.", id,
                 friendId);
 
         jdbcTemplate.update("DELETE FROM user_friends_status WHERE user_id = ? AND friend_id = ? AND " +
@@ -176,8 +180,9 @@ public class UserDbStorage implements UserStorage {
         User user = getUserById(id);
         User otherUser = getUserById(otherId);
 
-        log.info("Request for database: obtaining common friends for user with id: {} and user with id: {}", id,
+        log.info("Request for database: obtaining common friends for user with id: '{}' and user with id: '{}'.", id,
                 otherId);
+
         List<User> commonFriends;
 
         Set<Long> friendsIdsForUser1 = new HashSet<>(user.getFriendsIds());
@@ -230,7 +235,6 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
-    @Override
     public Optional<List<Film>> getRecommendationsFilms(Long id) {
 
         if (id == null) {
@@ -239,7 +243,7 @@ public class UserDbStorage implements UserStorage {
 
         List<Film> finalFilms = new ArrayList<>();
 
-        log.info("Запрос к базе данных по {} пользователя.", id);
+        log.info("Request to database for getting recommendations by user id: '{}'.", id);
 
         // Получаем film_id рекомендованных фильмов
         List<String> recommendationsFilmsId = jdbcTemplate.queryForList(
@@ -273,37 +277,46 @@ public class UserDbStorage implements UserStorage {
                         "       f.release_date, " +
                         "       f.duration, " +
                         "       f.mpa_id, " +
-                        "       m.mpa_name FROM film AS f JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                        "       GROUP_CONCAT(fl.user_id) AS listOfUsersLike," +
+                        "       m.mpa_name " +
+                        " FROM film AS f " +
+                        " JOIN mpa AS m ON f.mpa_id = m.mpa_id " +
+                        " JOIN film_like AS fl ON fl.film_id = f.film_id" +
+                        " JOIN users AS u ON fl.user_id = u.users_id" +
                         " WHERE f.film_id IN (?)", String.join(",", recommendationsFilmsId));
 
         while (filmsRow.next()) {
             Film film = new Film();
             film.setId(filmsRow.getLong("film_id"));
-            film.setLikesToFilm(new HashSet<>(jdbcTemplate.queryForList("SELECT user_id FROM film_like WHERE " +
-                    "film_id = ?", Long.class, id)));
+            film.setLikesToFilm(Arrays.stream(Objects.requireNonNull(filmsRow.getString("listOfUsersLike"))
+                            .split(","))
+                    .map(Long::parseLong)
+                    .collect(Collectors.toSet()));
             film.setName(filmsRow.getString("film_name"));
             film.setDescription(filmsRow.getString("film_description"));
             film.setReleaseDate(Objects.requireNonNull(filmsRow.getDate("release_date")).toLocalDate());
             film.setDuration(Duration.ofMinutes(filmsRow.getInt("duration")));
-
             film.setMpa(new Mpa(filmsRow.getInt("mpa_id"), filmsRow.getString("mpa_name")));
 
-
-            SqlRowSet genresRow = jdbcTemplate.queryForRowSet(
-                    " SELECT genre.genre_id, " +
-                            "        genre_name " +
-                            " FROM genre " +
-                            " JOIN film_genre ON genre.genre_id = film_genre.genre_id " +
-                            " WHERE film_id IN (?)", String.join(",", recommendationsFilmsId));
-            Set<Genre> genres = new TreeSet<>();
-            while (genresRow.next()) {
-                Genre genre = new Genre(genresRow.getInt("genre_id"), genresRow
-                        .getString("genre_name"));
-                genres.add(genre);
-            }
-            film.setGenres(genres);
             finalFilms.add(film);
+        }
 
+        SqlRowSet genresRow = jdbcTemplate.queryForRowSet(
+                " SELECT genre.genre_id, " +
+                        "        genre_name," +
+                        "        f.film_id" +
+                        " FROM genre " +
+                        " JOIN film_genre ON genre.genre_id = film_genre.genre_id " +
+                        " JOIN film AS f ON film_genre.film_id = f.film_id" +
+                        " WHERE f.film_id IN (?)", String.join(",", recommendationsFilmsId));
+        HashMap<Long, Set<Genre>> genres = new HashMap<>();
+        while (genresRow.next()) {
+            Genre genre = new Genre(genresRow.getInt("genre_id"), genresRow
+                    .getString("genre_name"));
+            genres.computeIfAbsent(genresRow.getLong("film_id"), k -> new TreeSet<>()).add(genre);
+        }
+        for (Film film : finalFilms) {
+            film.setGenres(genres.get(film.getId()));
         }
         return Optional.of(finalFilms);
     }
