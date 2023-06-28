@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.constraints.PositiveDuration;
-import ru.yandex.practicum.filmorate.constraints.ReleaseDate;
+import ru.yandex.practicum.filmorate.handler.constraints.PositiveDuration;
+import ru.yandex.practicum.filmorate.handler.constraints.ReleaseDate;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -31,7 +31,8 @@ public class Film {
     private Duration duration;
 
     private Mpa mpa;
-    private Set<Genre> genres = new TreeSet<>();
+    private Set<Genre> genres = new LinkedHashSet<>();
+    private Set<Director> directors = new TreeSet<>();
 
     public void setLikeToFilm(User user) {
         likesToFilm.add(user.getId());

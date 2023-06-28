@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +8,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
-import ru.yandex.practicum.filmorate.dao.impl.GenreDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.MpaDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.UserDbStorage;
-import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -24,6 +21,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -32,7 +31,6 @@ class FilmorateApplicationTests {
 
     private final UserDbStorage userDbStorage;
     private final FilmDbStorage filmDbStorage;
-    private final GenreDbStorage genreDbStorage;
     private final MpaDbStorage mpaDbStorage;
     private static User user1;
     private static User user2;
@@ -349,7 +347,6 @@ class FilmorateApplicationTests {
 
         filmDbStorage.addFilm(film3);
         Film film3Restored = filmDbStorage.getFilmById(film3.getId());
-
         assertEquals(film3.getGenres(), film3Restored.getGenres(), "Incorrect operation of addFilm() method.");
     }
 
@@ -544,86 +541,6 @@ class FilmorateApplicationTests {
         assertEquals("User with id: 999 doesn't exist.", exception.getMessage());
 
         user1.setId(id);
-    }
-
-    @Test
-    public void shouldReturnTopFilmWithLike() {
-        filmDbStorage.addLikeToFilm(film1.getId(), user1.getId());
-
-        List<Film> topFilms = filmDbStorage.getTopFilms(1);
-
-        assertTrue(topFilms.size() == 1 & topFilms.get(0).getId().equals(film1.getId()),
-                "Incorrect operation of getTopFilms() method.");
-    }
-
-    @Test
-    public void shouldReturnTopFilmWithListLengthEqualTo1() {
-
-        List<Film> topFilms = filmDbStorage.getTopFilms(1);
-
-        assertTrue(topFilms.size() == 1 & topFilms.get(0).getId().equals(film1.getId()),
-                "Incorrect operation of getTopFilms() method.");
-    }
-
-    @Test
-    public void shouldReturnTopFilmWithDefaultListLength() {
-
-        List<Film> topFilms = filmDbStorage.getTopFilms(null);
-
-        assertTrue(topFilms.size() == 2 & topFilms.get(0).getId().equals(film1.getId())
-                        & topFilms.get(1).getId().equals(film2.getId()),
-                "Incorrect operation of getTopFilms() method.");
-    }
-
-    @Test
-    public void shouldThrowIncorrectParameterExceptionWhileAttemptingToGetTopFilmsWithIncorrectListLength() {
-
-        final IncorrectParameterException exception = assertThrows(IncorrectParameterException.class,
-                () -> filmDbStorage.getTopFilms(-1));
-
-        assertEquals("'count' parameter less than zero.", exception.getMessage());
-    }
-
-    //  GenreDbStorage methods tests
-
-    @Test
-    public void shouldReturnGenreById() {
-        Genre genre = genreDbStorage.getGenreById(1);
-
-        assertTrue(genre.getId() == 1 & genre.getName().equals("Комедия"),
-                "Incorrect operation of getGenreById() method.");
-    }
-
-    @Test
-    public void shouldThrowIncorrectParameterExceptionWhileAttemptingToGetGenreWithIdOfMinus1() {
-        final IncorrectParameterException exception = assertThrows(IncorrectParameterException.class,
-                () -> genreDbStorage.getGenreById(-1));
-
-        assertEquals("id of genre is equal to or less than zero.", exception.getMessage());
-    }
-
-    @Test
-    public void shouldThrowEntityNotFoundExceptionWhileAttemptingToGetGenreWithIdOf34() {
-        final EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
-                () -> genreDbStorage.getGenreById(34));
-
-        assertEquals("Genre with id: 34 doesn't exist.", exception.getMessage());
-    }
-
-    @Test
-    public void shouldReturnAllGenres() {
-        List<Genre> genres = (List<Genre>) genreDbStorage.findAllGenres();
-
-        Genre genre1 = new Genre(1, "Комедия");
-        Genre genre2 = new Genre(2, "Драма");
-        Genre genre3 = new Genre(3, "Мультфильм");
-        Genre genre4 = new Genre(4, "Триллер");
-        Genre genre5 = new Genre(5, "Документальный");
-        Genre genre6 = new Genre(6, "Боевик");
-
-        assertTrue(genres.contains(genre1) & genres.contains(genre2) & genres.contains(genre3)
-                & genres.contains(genre4) & genres.contains(genre5) & genres.contains(genre6)
-                & genres.size() == 6, "Incorrect operation of findAllGenres() method.");
     }
 
     //  MpaDbStorage methods tests

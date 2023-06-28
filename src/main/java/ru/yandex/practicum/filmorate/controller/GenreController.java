@@ -23,7 +23,6 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    @ResponseBody
     public Genre getGenreById(@PathVariable final Integer id) {
         log.info("Request for getting genre by id obtained.");
 

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.constraints;
+package ru.yandex.practicum.filmorate.handler.constraints;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -11,11 +11,10 @@ import javax.validation.Payload;
 
 @Target({FIELD})
 @Retention(RUNTIME)
-@Constraint(validatedBy = ReleaseDateValidator.class)
+@Constraint(validatedBy = PositiveDurationValidator.class)
 @Documented
-public @interface ReleaseDate {
-
-    String message() default "Incorrect release date.";
+public @interface PositiveDuration {
+    String message() default "Incorrect duration.";
 
     Class<?>[] groups() default {};
 

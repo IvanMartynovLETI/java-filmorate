@@ -15,10 +15,14 @@ public class GenreService {
     private final GenreStorage genreStorage;
 
     public Genre getGenreById(int id) {
+        log.info("Service layer: get genre with id: '{}'.", id);
+
         return genreStorage.getGenreById(id);
     }
 
     public Collection<Genre> findAllGenres() {
+        log.info("Service layer: get all genres.");
+
         return genreStorage.findAllGenres();
     }
 }

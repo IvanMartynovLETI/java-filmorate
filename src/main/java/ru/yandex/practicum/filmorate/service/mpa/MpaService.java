@@ -15,10 +15,14 @@ public class MpaService {
     private final MpaStorage mpaStorage;
 
     public Mpa getMpaById(int id) {
+        log.info("Service layer: get MPA with id: '{}'.", id);
+
         return mpaStorage.getMpaById(id);
     }
 
     public Collection<Mpa> findAllMpa() {
+        log.info("Service layer: get all MPA.");
+
         return mpaStorage.findAllMpa();
     }
 }

@@ -20,7 +20,6 @@ public class JacksonConfiguration {
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
 
         return builder -> {
-
             builder.deserializers(new StdDeserializer<Duration>(Duration.class) {
                 @Override
                 public Duration deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
