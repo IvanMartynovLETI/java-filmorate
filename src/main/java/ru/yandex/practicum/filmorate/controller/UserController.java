@@ -82,7 +82,7 @@ public class UserController {
 
     @DeleteMapping("{userId}")
     public void deleteUser(@PathVariable("userId") long userId) {
-        log.info("Пользователь " + userId + " был удален");
+        log.info("Request for deletion user by id obtained.");
 
         userService.deleteUser(userService.getUserById(userId));
     }
@@ -96,7 +96,7 @@ public class UserController {
 
     @GetMapping("/{id}/recommendations")
     public Optional<List<Film>> getRecommendationsFilms(@PathVariable Long id) {
-        log.info("Запрос на получение списка рекомендаций по фильмам для целевого пользователя.");
+        log.info("Request for getting list of recommendations for user obtained.");
 
         return userService.getRecommendationsFilms(id);
     }
